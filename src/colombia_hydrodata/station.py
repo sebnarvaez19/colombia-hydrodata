@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Self
 
-import pandas as pd
-
 from colombia_hydrodata.utils.fetch.stations import station_data, station_hydrographic_data, station_location_data
 
 

@@ -34,11 +34,3 @@ def station_hydrographic_data(station_id: str) -> dict:
 def station_data(station_id: str) -> dict:
     data = station_raw_data(station_id)
     return {field: data[field] for field in data_fields}
-
-
-if __name__ == "__main__":
-    from pprint import pprint
-
-    df = fetch_df()
-    calamar = station_data(df, "29037020")
-    pprint(calamar)
