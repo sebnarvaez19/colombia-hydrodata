@@ -14,7 +14,7 @@ cne_names = {
     "area_hidrografica": "hydrographic_area",
     "zona_hidrografica": "hydrographic_zone",
     "subzona_hidrografica": "hydrographic_subzone",
-    "entidad": "entity",
+    "entidad": "owner",
 }
 
 
