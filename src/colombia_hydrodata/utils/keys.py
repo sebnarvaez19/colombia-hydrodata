@@ -1,3 +1,23 @@
+cne_names = {
+    "codigo": "id",
+    "nombre": "name",
+    "categoria": "category",
+    "tecnologia": "technology",
+    "estado": "status",
+    "departamento": "department",
+    "municipio": "municipality",
+    "altitud": "altitude",
+    "longitud": "longitude",
+    "latitud": "latitude",
+    "fecha_instalacion": "installation_date",
+    "fecha_suspension": "suspension_date",
+    "area_hidrografica": "hydrographic_area",
+    "zona_hidrografica": "hydrographic_zone",
+    "subzona_hidrografica": "hydrographic_subzone",
+    "entidad": "entity",
+}
+
+
 aquarius_web_portal_param_names = {
     "temperature": "TEMPERATURA",
     "height": "ALTURA",
