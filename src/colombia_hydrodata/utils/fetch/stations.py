@@ -14,7 +14,6 @@ hydrographic_fields = ["hydrographic_area", "hydrographic_zone", "hydrographic_s
 def fetch_df() -> pd.DataFrame:
     response = requests.get(datos_gov_co_cne, params={"$limit": int(1e13)})
     df = pd.DataFrame.from_records(response.json())
-    # TODO: save in disk.
     return transform_stations_df(df)
 
 
