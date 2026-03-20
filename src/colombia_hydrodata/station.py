@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Self
 
+from colombia_hydrodata.utils.fetch.aquarius import station_datasets
 from colombia_hydrodata.utils.fetch.stations import station_data, station_hydrographic_data, station_location_data
 
 
@@ -30,6 +31,19 @@ class StationHydrographic:
 
 
 @dataclass(frozen=True)
+class Variable:
+    param: str
+    label: str
+    id: int
+
+    def __str__(self) -> str:
+        return f"{self.param}@{self.label}".upper()
+
+    def fetch_data(self) -> str:
+        return f"{str(self): (self.id=)}"  # TODO: Fetch dataset logic
+
+
+@dataclass(frozen=True)
 class Station:
     id: str
     name: str
@@ -43,12 +57,14 @@ class Station:
     owner: str
     location: StationLocation
     hydrographic: StationHydrographic
+    variables: dict[str, Variable] | None = None
 
     @classmethod
     def from_stations_df(cls, station_id: str) -> Self:
         sd = station_data(station_id)
         ld = station_location_data(station_id)
         hd = station_hydrographic_data(station_id)
+        vars = {key: Variable(param=value["param"], label=value["label"], id=value["id"]) for key, value in station_datasets(station_id).items()}
 
         return cls(
             id=sd["id"],
@@ -65,12 +81,10 @@ class Station:
             hydrographic=StationHydrographic(
                 hydrographic_area=hd["hydrographic_area"], hydrographic_zone=hd["hydrographic_zone"], hydrigraphic_subzone=hd["hydrographic_subzone"]
             ),
+            variables=vars,
         )
 
 
 if __name__ == "__main__":
-    from colombia_hydrodata.utils.fetch.stations import fetch_df
-
-    stations_df = fetch_df()
     station = Station.from_stations_df("29037020")
     print(station)
