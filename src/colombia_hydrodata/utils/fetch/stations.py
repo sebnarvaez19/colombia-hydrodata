@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 
+from colombia_hydrodata.utils.cache import save_table
 from colombia_hydrodata.utils.endpoints import datos_gov_co_cne
 from colombia_hydrodata.utils.transform import transform_stations_df
 
@@ -9,6 +10,7 @@ location_fields = ["altitude", "longitude", "latitude"]
 hydrographic_fields = ["hydrographic_area", "hydrographic_zone", "hydrographic_subzone"]
 
 
+@save_table("stations")
 def fetch_df() -> pd.DataFrame:
     response = requests.get(datos_gov_co_cne, params={"$limit": int(1e13)})
     df = pd.DataFrame.from_records(response.json())
