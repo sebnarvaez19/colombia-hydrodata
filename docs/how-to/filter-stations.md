@@ -24,20 +24,20 @@ Filters(
 )
 ```
 
-| Parameter | Type | Example value |
-|---|---|---|
-| `category` | `str` | `"Limnigráfica"` |
-| `department` | `str` | `"Antioquia"` |
-| `municipality` | `str` | `"Medellín"` |
-| `status` | `str` | `"Activa"` |
-| `owner` | `str` | `"IDEAM"` |
-| `hydrographic_area` | `str` | `"Magdalena - Cauca"` |
-| `hydrographic_zone` | `str` | `"Alto Magdalena"` |
-| `hydrographic_subzone` | `str` | `"Río Bogotá"` |
+| Parameter              | Type  | Example value         |
+| ---------------------- | ----- | --------------------- |
+| `category`             | `str` | `"Limnigráfica"`      |
+| `department`           | `str` | `"Antioquia"`         |
+| `municipality`         | `str` | `"Medellín"`          |
+| `status`               | `str` | `"Activa"`            |
+| `owner`                | `str` | `"IDEAM"`             |
+| `hydrographic_area`    | `str` | `"Magdalena - Cauca"` |
+| `hydrographic_zone`    | `str` | `"Alto Magdalena"`    |
+| `hydrographic_subzone` | `str` | `"Río Bogotá"`        |
 
 !!! note "None means no filter"
-    Every parameter defaults to `None`. A `None` value is simply **ignored** during
-    filtering — it does not exclude stations that lack that attribute.
+Every parameter defaults to `None`. A `None` value is simply **ignored** during
+filtering — it does not exclude stations that lack that attribute.
 
 ---
 
@@ -208,7 +208,7 @@ initial catalog load. To get full `Station` objects (with time-series access) ca
 
 ## Combining Multiple Filters
 
-All supplied fields are joined with **AND**. A station must satisfy *every*
+All supplied fields are joined with **AND**. A station must satisfy _every_
 non-`None` condition to be included in the result.
 
 ```python
@@ -235,8 +235,8 @@ station_objects = [client.fetch_station(sid) for sid in gdf["id"]]
 ```
 
 !!! warning "AND logic only"
-    There is no built-in OR operator across `Filters` fields. If you need stations
-    from *either* Antioquia *or* Caldas, run two separate filter calls and concatenate:
+There is no built-in OR operator across `Filters` fields. If you need stations
+from _either_ Antioquia _or_ Caldas, run two separate filter calls and concatenate:
 
     ```python
     import pandas as pd
@@ -285,6 +285,6 @@ stations = client.fetch_bbox(-77.0, 1.0, -76.0, 2.0)
 ```
 
 !!! info "Case sensitivity"
-    Filter values are matched against the CNE catalog strings, which use title-case
-    Spanish. Make sure your strings match the catalog spelling exactly
-    (including accented characters such as `á`, `é`, `ó`).
+Filter values are matched against the CNE catalog strings, which use title-case
+Spanish. Make sure your strings match the catalog spelling exactly
+(including accented characters such as `á`, `é`, `ó`).

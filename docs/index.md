@@ -55,20 +55,20 @@ print(dataset.data.head())
 
 <div class="grid cards" markdown>
 
--   :material-rocket-launch-outline: **Getting Started**
+- :material-rocket-launch-outline: **Getting Started**
 
-    ---
+  ***
 
-    Install the library and run your first query in minutes.
+  Install the library and run your first query in minutes.
 
-    [:octicons-arrow-right-24: Getting Started](getting-started.md)
+  [:octicons-arrow-right-24: Getting Started](getting-started.md)
 
--   :material-book-open-page-variant-outline: **API Reference**
+- :material-book-open-page-variant-outline: **API Reference**
 
-    ---
+  ***
 
-    Full documentation for `Client`, `Station`, `Dataset`, `Filters`, `Location`, `Hydrographic`, and `Variable`.
+  Full documentation for `Client`, `Station`, `Dataset`, `Filters`, `Location`, `Hydrographic`, and `Variable`.
 
-    [:octicons-arrow-right-24: Reference](reference/client.md)
+  [:octicons-arrow-right-24: Reference](reference/client.md)
 
 </div>

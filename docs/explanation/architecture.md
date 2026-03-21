@@ -39,10 +39,10 @@ flowchart TD
 ```
 
 !!! info "Mermaid diagrams"
-    Material for MkDocs renders Mermaid diagrams automatically when you add
-    `mermaid` to the `markdown_extensions` list in `mkdocs.yml`. See the
-    [Material docs](https://squidfunk.github.io/mkdocs-material/reference/diagrams/)
-    for setup instructions.
+Material for MkDocs renders Mermaid diagrams automatically when you add
+`mermaid` to the `markdown_extensions` list in `mkdocs.yml`. See the
+[Material docs](https://squidfunk.github.io/mkdocs-material/reference/diagrams/)
+for setup instructions.
 
 ---
 
@@ -65,10 +65,10 @@ flowchart TD
 ```
 
 !!! tip "Lightweight vs full fetch"
-    `Client.stations_in_list()` and `Client.stations_in_region()` skip Step 2–4
-    entirely — they return a GeoDataFrame slice directly from `client.catalog`
-    without making any additional network calls. Use these when you only need
-    station locations or metadata.
+`Client.stations_in_list()` and `Client.stations_in_region()` skip Step 2–4
+entirely — they return a GeoDataFrame slice directly from `client.catalog`
+without making any additional network calls. Use these when you only need
+station locations or metadata.
 
 ---
 
@@ -79,14 +79,14 @@ flowchart TD
 the CNE catalog, the Aquarius variable list, and stores everything in a single
 immutable object — there is no lazy loading.
 
-| Attribute / method | What it gives you | Network call? |
-|--------------------|-------------------|:---:|
-| `.id`, `.name`, `.category`, … | CNE metadata fields | ❌ |
-| `.location` | `Location` (altitude, lon, lat) | ❌ |
-| `.hydrographic` | `Hydrographic` (area, zone, subzone) | ❌ |
-| `.variables` | `dict[str, Variable]` of `PARAM@LABEL` keys | ❌ |
-| `key in station` | Membership test for a variable key | ❌ |
-| `station.fetch(key)` / `station[key]` | A `Dataset` for one variable | ✅ |
+| Attribute / method                    | What it gives you                           | Network call? |
+| ------------------------------------- | ------------------------------------------- | :-----------: |
+| `.id`, `.name`, `.category`, …        | CNE metadata fields                         |      ❌       |
+| `.location`                           | `Location` (altitude, lon, lat)             |      ❌       |
+| `.hydrographic`                       | `Hydrographic` (area, zone, subzone)        |      ❌       |
+| `.variables`                          | `dict[str, Variable]` of `PARAM@LABEL` keys |      ❌       |
+| `key in station`                      | Membership test for a variable key          |      ❌       |
+| `station.fetch(key)` / `station[key]` | A `Dataset` for one variable                |      ✅       |
 
 ```python
 # Station is populated in one shot when fetch_station() is called
@@ -122,11 +122,11 @@ print(ds.data.head())
 # Returns a pd.DataFrame with 'timestamp' and 'value' columns
 ```
 
-| Attribute | Description |
-|--------------------|-------------|
-| `.station` | The parent `Station` object |
-| `.variable` | `Variable` descriptor (`param`, `label`, `id`) |
-| `.data` | `pd.DataFrame` with `timestamp` and `value` columns |
+| Attribute   | Description                                         |
+| ----------- | --------------------------------------------------- |
+| `.station`  | The parent `Station` object                         |
+| `.variable` | `Variable` descriptor (`param`, `label`, `id`)      |
+| `.data`     | `pd.DataFrame` with `timestamp` and `value` columns |
 
 ---
 
@@ -202,14 +202,14 @@ DataFrame you can plot.
 ## Design Principles
 
 !!! abstract "Why two external sources?"
-    The **CNE catalog** (datos.gov.co) is the authoritative register of
-    Colombian hydrological stations — it has location, administrative region,
-    and operational status. **Aquarius** holds the actual measurements. Neither
-    source alone gives you both. See
-    [Data Sources](data-sources.md) for more detail.
+The **CNE catalog** (datos.gov.co) is the authoritative register of
+Colombian hydrological stations — it has location, administrative region,
+and operational status. **Aquarius** holds the actual measurements. Neither
+source alone gives you both. See
+[Data Sources](data-sources.md) for more detail.
 
 !!! abstract "Why a Filters object instead of plain keyword arguments?"
-    Wrapping filter criteria in a dedicated `Filters` dataclass makes filters
-    composable and reusable: build one `Filters` instance and pass it to
-    `fetch_bbox`, `fetch_region`, *and* `filter_stations` without repeating
-    yourself.
+Wrapping filter criteria in a dedicated `Filters` dataclass makes filters
+composable and reusable: build one `Filters` instance and pass it to
+`fetch_bbox`, `fetch_region`, _and_ `filter_stations` without repeating
+yourself.

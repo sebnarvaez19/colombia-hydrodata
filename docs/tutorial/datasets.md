@@ -19,11 +19,11 @@ dataset = station["CAUDAL@HIS_Q_MEDIA_D"]
 
 `dataset` is a `Dataset` instance — a plain dataclass with three attributes:
 
-| Attribute | Type | Description |
-|---|---|---|
-| `dataset.station` | `Station` | The station the data comes from |
-| `dataset.variable` | `Variable` | Descriptor for the measured variable |
-| `dataset.data` | `pd.DataFrame` | Full time-series observations |
+| Attribute          | Type           | Description                          |
+| ------------------ | -------------- | ------------------------------------ |
+| `dataset.station`  | `Station`      | The station the data comes from      |
+| `dataset.variable` | `Variable`     | Descriptor for the measured variable |
+| `dataset.data`     | `pd.DataFrame` | Full time-series observations        |
 
 Printing a dataset gives a compact one-line summary:
 
@@ -36,8 +36,8 @@ Datset from Station CALAMAR: 29037020, CALAMAR (BOLIVAR), CAUDAL@HIS_Q_MEDIA_D
 ```
 
 !!! note "Typo in the output"
-    `Datset` is the literal text produced by `Dataset.__str__` — the missing
-    `a` is in the upstream source. The object itself is fully functional.
+`Datset` is the literal text produced by `Dataset.__str__` — the missing
+`a` is in the upstream source. The object itself is fully functional.
 
 ---
 
@@ -67,11 +67,11 @@ print(var.id)     # numeric Aquarius dataset ID
 print(var)        # CAUDAL@HIS_Q_MEDIA_D
 ```
 
-| Field | Description |
-|---|---|
-| `var.param` | Parameter family — e.g. `CAUDAL`, `NIVEL`, `PRECIPITACION` |
+| Field       | Description                                                               |
+| ----------- | ------------------------------------------------------------------------- |
+| `var.param` | Parameter family — e.g. `CAUDAL`, `NIVEL`, `PRECIPITACION`                |
 | `var.label` | Series code that identifies aggregation and sensor — e.g. `HIS_Q_MEDIA_D` |
-| `var.id` | Numeric Aquarius dataset identifier used to fetch the raw data |
+| `var.id`    | Numeric Aquarius dataset identifier used to fetch the raw data            |
 
 ---
 
@@ -79,16 +79,16 @@ print(var)        # CAUDAL@HIS_Q_MEDIA_D
 
 `dataset.data` is a `pandas.DataFrame` with exactly two columns:
 
-| Column | dtype | Description |
-|---|---|---|
-| `timestamp` | `datetime64[ns]` | Date (and time) of the observation |
-| `value` | `float64` | Measured value in the variable's native unit |
+| Column      | dtype            | Description                                  |
+| ----------- | ---------------- | -------------------------------------------- |
+| `timestamp` | `datetime64[ns]` | Date (and time) of the observation           |
+| `value`     | `float64`        | Measured value in the variable's native unit |
 
 !!! note "No unit column"
-    The unit — m³/s for streamflow, m for gauge level, mm for rainfall, etc.
-    — is encoded in the variable key rather than stored in a separate column.
-    Use `dataset.variable.param` and `dataset.variable.label` to identify
-    what you are working with.
+The unit — m³/s for streamflow, m for gauge level, mm for rainfall, etc.
+— is encoded in the variable key rather than stored in a separate column.
+Use `dataset.variable.param` and `dataset.variable.label` to identify
+what you are working with.
 
 ### Viewing the data
 
@@ -286,7 +286,7 @@ timestamp
     ```
 
 !!! tip "Include station metadata in the filename"
-    A small helper keeps exported files self-describing:
+A small helper keeps exported files self-describing:
 
     ```python
     filename = f"{dataset.station.id}_{dataset.variable}.csv".lower()

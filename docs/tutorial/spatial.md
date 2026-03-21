@@ -5,11 +5,11 @@ axis-aligned bounding box, an arbitrary Shapely polygon, and lightweight
 catalog-only lookups that avoid any additional network requests.
 
 !!! note "Coordinate reference system"
-    All coordinates used throughout the library are in **WGS 84 (EPSG:4326)**,
-    with **longitude as the X axis** and **latitude as the Y axis**.
-    No automatic CRS conversion is performed — make sure any polygons you
-    build or load from external files use the same reference system before
-    passing them to the client.
+All coordinates used throughout the library are in **WGS 84 (EPSG:4326)**,
+with **longitude as the X axis** and **latitude as the Y axis**.
+No automatic CRS conversion is performed — make sure any polygons you
+build or load from external files use the same reference system before
+passing them to the client.
 
 ---
 
@@ -65,10 +65,10 @@ print(f"Found {len(stations)} active streamflow stations in the bounding box")
 ```
 
 !!! warning "Large bounding boxes trigger many requests"
-    Every station in the result requires an individual round-trip to the
-    Aquarius WebPortal to discover available variables.  For very large areas,
-    use [`stations_in_region`](#catalog-only-queries-stations_in_region) first
-    to preview the station count before committing to a full fetch.
+Every station in the result requires an individual round-trip to the
+Aquarius WebPortal to discover available variables. For very large areas,
+use [`stations_in_region`](#catalog-only-queries-stations_in_region) first
+to preview the station count before committing to a full fetch.
 
 ---
 
@@ -98,7 +98,7 @@ print(f"Found {len(stations)} stations inside the polygon")
 
 ### Loading polygon boundaries from files
 
-Real study areas seldom fit a simple rectangle.  You can load boundaries
+Real study areas seldom fit a simple rectangle. You can load boundaries
 from any geospatial file format and pass the geometry directly:
 
 === "GeoJSON"
@@ -130,16 +130,16 @@ from any geospatial file format and pass the geometry directly:
     ```
 
 !!! tip "Always reproject to EPSG:4326 first"
-    Colombian datasets are often distributed in MAGNA-SIRGAS / Colombia Bogotá
-    Zone (EPSG:3116) or other local projections.  Calling `.to_crs(epsg=4326)`
-    before extracting the geometry ensures the spatial query works correctly.
+Colombian datasets are often distributed in MAGNA-SIRGAS / Colombia Bogotá
+Zone (EPSG:3116) or other local projections. Calling `.to_crs(epsg=4326)`
+before extracting the geometry ensures the spatial query works correctly.
 
 ---
 
 ## Catalog-only queries — `stations_in_region`
 
 When you only need to explore which stations exist in an area — without
-loading variable metadata — use `stations_in_region`.  It filters
+loading variable metadata — use `stations_in_region`. It filters
 `client.catalog` in memory and returns a `GeoDataFrame` slice with **zero
 additional network requests**.
 
@@ -213,22 +213,22 @@ print(subset[["id", "name", "department"]])
 ```
 
 !!! info "Row order follows the catalog, not your input list"
-    The returned GeoDataFrame preserves the original catalog index order,
-    not the order of the IDs you passed in.  Sort or reindex afterwards if
-    insertion order matters.
+The returned GeoDataFrame preserves the original catalog index order,
+not the order of the IDs you passed in. Sort or reindex afterwards if
+insertion order matters.
 
 ---
 
 ## Method comparison
 
-| Method | Input | Returns | Network requests |
-|---|---|---|---|
-| `fetch_bbox(xmin, ymin, xmax, ymax)` | Four floats | `list[Station]` | One per matched station |
-| `fetch_region(polygon)` | Shapely geometry | `list[Station]` | One per matched station |
-| `stations_in_region(polygon)` | Shapely geometry | `GeoDataFrame` | **None** |
-| `stations_in_list([ids])` | List of ID strings | `GeoDataFrame` | **None** |
+| Method                               | Input              | Returns         | Network requests        |
+| ------------------------------------ | ------------------ | --------------- | ----------------------- |
+| `fetch_bbox(xmin, ymin, xmax, ymax)` | Four floats        | `list[Station]` | One per matched station |
+| `fetch_region(polygon)`              | Shapely geometry   | `list[Station]` | One per matched station |
+| `stations_in_region(polygon)`        | Shapely geometry   | `GeoDataFrame`  | **None**                |
+| `stations_in_list([ids])`            | List of ID strings | `GeoDataFrame`  | **None**                |
 
 Use the catalog-only methods (`stations_in_region`, `stations_in_list`)
-when exploring or counting stations.  Switch to the fetch methods
+when exploring or counting stations. Switch to the fetch methods
 (`fetch_region`, `fetch_bbox`) only when you need full variable metadata and
 time-series access.

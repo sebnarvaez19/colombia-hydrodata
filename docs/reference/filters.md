@@ -7,9 +7,9 @@ combined with AND logic. Pass a `Filters` instance to `Client.filter_stations()`
 `Client.fetch_stations()`, `Client.fetch_bbox()`, or `Client.fetch_region()`.
 
 ::: colombia_hydrodata.filters.Filters
-    options:
-      show_source: false
-      show_root_heading: true
-      show_symbol_type_heading: true
-      show_symbol_type_toc: true
-      members_order: source
+options:
+show_source: false
+show_root_heading: true
+show_symbol_type_heading: true
+show_symbol_type_toc: true
+members_order: source

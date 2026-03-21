@@ -6,9 +6,9 @@ as a `GeoDataFrame` in `client.catalog`. No API key or authentication is require
 data sources used by the library are publicly accessible.
 
 ::: colombia_hydrodata.client.Client
-    options:
-      show_source: false
-      show_root_heading: true
-      show_symbol_type_heading: true
-      show_symbol_type_toc: true
-      members_order: source
+options:
+show_source: false
+show_root_heading: true
+show_symbol_type_heading: true
+show_symbol_type_toc: true
+members_order: source

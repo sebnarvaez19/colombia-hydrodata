@@ -7,18 +7,18 @@ This page walks you through installing `colombia-hydrodata` and running your ver
 ## Requirements
 
 !!! warning "Python version"
-    `colombia-hydrodata` requires **Python 3.14 or newer**.  
-    Run `python --version` to confirm before installing.
+`colombia-hydrodata` requires **Python 3.14 or newer**.  
+ Run `python --version` to confirm before installing.
 
-| Dependency | Minimum version | Notes |
-|---|---|---|
-| Python | 3.14 | Required |
-| `requests` | 2.32 | HTTP transport |
-| `pandas` | 3.0 | Returned datasets |
-| `geopandas` | 1.1 | Catalog GeoDataFrame |
-| `shapely` | 2.1 | Geometry objects |
-| `aquarius-webportal` | 0.4 | Aquarius WebPortal client |
-| `pyarrow` | 23.0 | Parquet catalog cache |
+| Dependency           | Minimum version | Notes                     |
+| -------------------- | --------------- | ------------------------- |
+| Python               | 3.14            | Required                  |
+| `requests`           | 2.32            | HTTP transport            |
+| `pandas`             | 3.0             | Returned datasets         |
+| `geopandas`          | 1.1             | Catalog GeoDataFrame      |
+| `shapely`            | 2.1             | Geometry objects          |
+| `aquarius-webportal` | 0.4             | Aquarius WebPortal client |
+| `pyarrow`            | 23.0            | Parquet catalog cache     |
 
 ---
 
@@ -52,7 +52,7 @@ Choose your preferred package manager:
     ```
 
 !!! tip "Virtual environments"
-    It is strongly recommended to install inside a virtual environment (`python -m venv .venv`) or a Poetry-managed shell (`poetry shell`) to avoid dependency conflicts.
+It is strongly recommended to install inside a virtual environment (`python -m venv .venv`) or a Poetry-managed shell (`poetry shell`) to avoid dependency conflicts.
 
 ---
 
@@ -98,18 +98,18 @@ Location: altitude=8.00 [-74.915; 10.243]
 ```
 
 !!! info "Available attributes"
-    | Attribute | Type | Description |
-    |---|---|---|
-    | `station.id` | `str` | Official IDEAM station code |
-    | `station.name` | `str` | Human-readable station name |
-    | `station.category` | `str` | Station type (e.g. `"Limnigráfica"`) |
-    | `station.status` | `str` | Operational status (`"Activa"` / `"Suspendida"`) |
-    | `station.department` | `str` | Colombian department |
-    | `station.municipality` | `str` | Municipality |
-    | `station.owner` | `str` | Operating entity |
-    | `station.location` | `Location` | Altitude, longitude, latitude |
-    | `station.hydrographic` | `Hydrographic` | Hydrographic area, zone, and subzone |
-    | `station.variables` | `dict[str, Variable]` | All available time-series variables |
+| Attribute | Type | Description |
+|---|---|---|
+| `station.id` | `str` | Official IDEAM station code |
+| `station.name` | `str` | Human-readable station name |
+| `station.category` | `str` | Station type (e.g. `"Limnigráfica"`) |
+| `station.status` | `str` | Operational status (`"Activa"` / `"Suspendida"`) |
+| `station.department` | `str` | Colombian department |
+| `station.municipality` | `str` | Municipality |
+| `station.owner` | `str` | Operating entity |
+| `station.location` | `Location` | Altitude, longitude, latitude |
+| `station.hydrographic` | `Hydrographic` | Hydrographic area, zone, and subzone |
+| `station.variables` | `dict[str, Variable]` | All available time-series variables |
 
 ---
 
@@ -185,24 +185,24 @@ print(f"Mean discharge: {dataset.data['value'].mean():.1f} m³/s")
 ## What's next
 
 !!! success "You're ready!"
-    You have successfully installed the library and pulled real hydrological data from Colombia.
+You have successfully installed the library and pulled real hydrological data from Colombia.
 
 <div class="grid cards" markdown>
 
--   :material-book-education-outline: **Tutorial**
+- :material-book-education-outline: **Tutorial**
 
-    ---
+  ***
 
-    A hands-on walkthrough: discover stations with `Filters`, compare multiple sites, and export data to CSV and Excel.
+  A hands-on walkthrough: discover stations with `Filters`, compare multiple sites, and export data to CSV and Excel.
 
-    [:octicons-arrow-right-24: Tutorial](tutorial/client.md)
+  [:octicons-arrow-right-24: Tutorial](tutorial/client.md)
 
--   :material-book-open-page-variant-outline: **API Reference**
+- :material-book-open-page-variant-outline: **API Reference**
 
-    ---
+  ***
 
-    Detailed documentation for every public class: `Client`, `Station`, `Dataset`, `Filters`, `Location`, `Hydrographic`, and `Variable`.
+  Detailed documentation for every public class: `Client`, `Station`, `Dataset`, `Filters`, `Location`, `Hydrographic`, and `Variable`.
 
-    [:octicons-arrow-right-24: Reference](reference/client.md)
+  [:octicons-arrow-right-24: Reference](reference/client.md)
 
 </div>

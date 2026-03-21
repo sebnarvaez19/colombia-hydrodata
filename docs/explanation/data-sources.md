@@ -2,7 +2,7 @@
 
 `colombia-hydrodata` draws from two independent backend systems — a national station
 catalog and a time-series portal — because no single API provides both the rich
-geospatial metadata *and* the historical measurements needed for hydrological work.
+geospatial metadata _and_ the historical measurements needed for hydrological work.
 This page explains each source, what it exposes, and why the two-source design exists.
 
 ---
@@ -14,7 +14,7 @@ This page explains each source, what it exposes, and why the two-source design e
 The **Catálogo Nacional de Estaciones (CNE)** is the authoritative registry of all
 hydro-meteorological monitoring stations operated or recognised by
 [IDEAM](http://www.ideam.gov.co/) (Instituto de Hidrología, Meteorología y Estudios
-Ambientales), Colombia's national environmental and meteorological agency.  Every
+Ambientales), Colombia's national environmental and meteorological agency. Every
 station that has ever been formally registered — active, inactive, or suspended — has
 an entry here.
 
@@ -33,29 +33,29 @@ which means:
   `geometry` point that can be loaded directly into a `GeoDataFrame`.
 
 !!! note "Catalog freshness"
-    IDEAM refreshes the CNE periodically; it is **not** a real-time feed.  Stations
-    that were decommissioned recently may still appear, and newly installed stations
-    may have a short delay before they show up.
+IDEAM refreshes the CNE periodically; it is **not** a real-time feed. Stations
+that were decommissioned recently may still appear, and newly installed stations
+may have a short delay before they show up.
 
 ### Fields exposed
 
 The CNE record for each station includes the following groups of attributes:
 
-| Field group | Example fields | Purpose |
-|---|---|---|
-| **Identity** | `CODIGO`, `NOMBRE` | Unique station code and human-readable name |
-| **Classification** | `CATEGORIA`, `TECNOLOGIA`, `ESTADO` | Station type, sensor technology, operational status |
-| **Ownership** | `ENTIDAD`, `SUBRED` | Operating entity and sub-network |
-| **Location — administrative** | `DEPARTAMENTO`, `MUNICIPIO`, `AREA_OPERATIVA` | Political/administrative region |
-| **Location — hydrographic** | `AREA_HIDROGRAFICA`, `ZONA_HIDROGRAFICA`, `SUBZONA_HIDROGRAFICA` | Watershed hierarchy |
-| **Location — physical** | `LATITUD`, `LONGITUD`, `ALTITUD` | Geographic coordinates and elevation |
-| **Dates** | `FECHA_INSTALACION`, `FECHA_SUSPENSION` | Station lifetime |
+| Field group                   | Example fields                                                   | Purpose                                             |
+| ----------------------------- | ---------------------------------------------------------------- | --------------------------------------------------- |
+| **Identity**                  | `CODIGO`, `NOMBRE`                                               | Unique station code and human-readable name         |
+| **Classification**            | `CATEGORIA`, `TECNOLOGIA`, `ESTADO`                              | Station type, sensor technology, operational status |
+| **Ownership**                 | `ENTIDAD`, `SUBRED`                                              | Operating entity and sub-network                    |
+| **Location — administrative** | `DEPARTAMENTO`, `MUNICIPIO`, `AREA_OPERATIVA`                    | Political/administrative region                     |
+| **Location — hydrographic**   | `AREA_HIDROGRAFICA`, `ZONA_HIDROGRAFICA`, `SUBZONA_HIDROGRAFICA` | Watershed hierarchy                                 |
+| **Location — physical**       | `LATITUD`, `LONGITUD`, `ALTITUD`                                 | Geographic coordinates and elevation                |
+| **Dates**                     | `FECHA_INSTALACION`, `FECHA_SUSPENSION`                          | Station lifetime                                    |
 
 !!! tip "Using CNE fields as filters"
-    Most of these field groups map directly to the parameters of the
-    [`Filters`](../reference/filters.md) object.  For instance,
-    `Filters(department="CUNDINAMARCA", status="Activa")` translates to a SODA
-    `$where` clause that is evaluated server-side before any data is downloaded.
+Most of these field groups map directly to the parameters of the
+[`Filters`](../reference/filters.md) object. For instance,
+`Filters(department="CUNDINAMARCA", status="Activa")` translates to a SODA
+`$where` clause that is evaluated server-side before any data is downloaded.
 
 ---
 
@@ -65,7 +65,7 @@ The CNE record for each station includes the following groups of attributes:
 
 **Aquarius** (by Aquatic Informatics / Xylem) is the time-series data management
 platform used by IDEAM to store, quality-control, and publish all hydro-meteorological
-measurements.  The WebPortal is the public-facing REST interface to that database.
+measurements. The WebPortal is the public-facing REST interface to that database.
 
 Unlike the CNE — which is a flat table of station metadata — Aquarius organises data
 in a three-level hierarchy:
@@ -80,7 +80,7 @@ Station  ──▶  Dataset (PARAM@LABEL)  ──▶  Time-series points
 
 ### Dataset identifiers
 
-Every measurable variable at a station is stored as a named **dataset**.  The
+Every measurable variable at a station is stored as a named **dataset**. The
 identifier exposed by `colombia-hydrodata` is a composite key with the format
 `PARAM@LABEL` — see [Variable Keys](variable-keys.md) for the full explanation.
 
@@ -93,16 +93,16 @@ quality tiers.
 When you access `.data` on a `Dataset` object, the library queries the Aquarius
 WebPortal REST endpoint and returns a `pandas.DataFrame` with:
 
-| Column | Type | Description |
-|---|---|---|
-| `timestamp` | `datetime64[ns]` | Observation timestamp |
-| `value` | `float64` | Measured or derived value in the variable's native unit |
+| Column      | Type             | Description                                             |
+| ----------- | ---------------- | ------------------------------------------------------- |
+| `timestamp` | `datetime64[ns]` | Observation timestamp                                   |
+| `value`     | `float64`        | Measured or derived value in the variable's native unit |
 
 !!! warning "Missing periods"
-    Aquarius stores time series **sparsely** — only timestamps where a value was
-    recorded are present.  Gaps caused by sensor outages, maintenance windows, or
-    station suspensions are not filled with `NaN` rows automatically.  If your
-    analysis requires a regular time grid, resample explicitly after fetching:
+Aquarius stores time series **sparsely** — only timestamps where a value was
+recorded are present. Gaps caused by sensor outages, maintenance windows, or
+station suspensions are not filled with `NaN` rows automatically. If your
+analysis requires a regular time grid, resample explicitly after fetching:
 
     ```python
     ts = dataset.data.set_index("timestamp")["value"].resample("1D").mean()
@@ -111,8 +111,8 @@ WebPortal REST endpoint and returns a `pandas.DataFrame` with:
 ### Access model
 
 The WebPortal is queried on demand — `colombia-hydrodata` never pre-fetches time
-series.  Data is only retrieved when you call `station.fetch(key)` or use bracket
-notation `station[key]`.  This keeps catalog-level operations (filtering, spatial
+series. Data is only retrieved when you call `station.fetch(key)` or use bracket
+notation `station[key]`. This keeps catalog-level operations (filtering, spatial
 queries, station inspection) fast even when thousands of stations match your query.
 
 ---
@@ -147,21 +147,21 @@ queries, station inspection) fast even when thousands of stations match your que
     download restricted time series.
 
 !!! info "How the library bridges the gap"
-    A `Station` object returned by the `Client` holds the CNE metadata *and*
-    the Aquarius variable catalogue — all fetched eagerly at construction time.
-    Accessing `station.variables` is always fast (no network call). Only requesting
-    the actual time-series data via `station[key]` triggers an Aquarius request.
+A `Station` object returned by the `Client` holds the CNE metadata _and_
+the Aquarius variable catalogue — all fetched eagerly at construction time.
+Accessing `station.variables` is always fast (no network call). Only requesting
+the actual time-series data via `station[key]` triggers an Aquarius request.
 
 ---
 
 ## Summary
 
-| | CNE Catalog | Aquarius WebPortal |
-|---|---|---|
-| **Provider** | IDEAM via datos.gov.co | IDEAM Aquarius installation |
-| **Protocol** | SODA REST (GeoJSON) | Aquarius WebPortal REST |
-| **Auth required** | No | Sometimes |
-| **Content** | Station registry & metadata | Hydrological time series |
-| **Update frequency** | Periodic (administrative) | Continuous (near real-time) |
-| **Library entry point** | `Client.fetch_*()` methods | `station[key]` / `station.fetch(key)` |
-| **Output type** | `GeoDataFrame` / `Station` list | `pandas.DataFrame` |
+|                         | CNE Catalog                     | Aquarius WebPortal                    |
+| ----------------------- | ------------------------------- | ------------------------------------- |
+| **Provider**            | IDEAM via datos.gov.co          | IDEAM Aquarius installation           |
+| **Protocol**            | SODA REST (GeoJSON)             | Aquarius WebPortal REST               |
+| **Auth required**       | No                              | Sometimes                             |
+| **Content**             | Station registry & metadata     | Hydrological time series              |
+| **Update frequency**    | Periodic (administrative)       | Continuous (near real-time)           |
+| **Library entry point** | `Client.fetch_*()` methods      | `station[key]` / `station.fetch(key)` |
+| **Output type**         | `GeoDataFrame` / `Station` list | `pandas.DataFrame`                    |

@@ -15,12 +15,12 @@ client = Client()
 That one line does everything needed to get started. On instantiation, `Client` sends a request to the Datos Abiertos Colombia CNE endpoint, parses and cleans the response, attaches a Shapely `Point` geometry to every row, and stores the result as `client.catalog`.
 
 !!! tip "The catalog is cached locally"
-    Repeated calls to `Client()` within the same week are near-instant.
-    The catalog is persisted as a Parquet file in your platform's user-cache
-    directory (`~/.cache/colombia-hydrodata/` on Linux and macOS, or the
-    equivalent `%LOCALAPPDATA%\colombia-hydrodata\` on Windows) and is
-    considered fresh for **7 days**. After that, the next instantiation
-    re-downloads the catalog automatically.
+Repeated calls to `Client()` within the same week are near-instant.
+The catalog is persisted as a Parquet file in your platform's user-cache
+directory (`~/.cache/colombia-hydrodata/` on Linux and macOS, or the
+equivalent `%LOCALAPPDATA%\colombia-hydrodata\` on Windows) and is
+considered fresh for **7 days**. After that, the next instantiation
+re-downloads the catalog automatically.
 
 ---
 
@@ -68,11 +68,11 @@ memory usage: 649.8 KB
 client.catalog[["id", "name", "category", "status", "department", "geometry"]].head(3)
 ```
 
-| id | name | category | status | department | geometry |
-|---|---|---|---|---|---|
-| 21180010 | BETANIA - EMBALSE | Limnigráfica | Activa | HUILA | POINT (-75.524 2.641) |
-| 21190010 | PESCADERO | Limnimétrica | Activa | HUILA | POINT (-75.178 2.898) |
-| 21218010 | VILLAVIEJA | Climática | Activa | HUILA | POINT (-75.215 3.213) |
+| id       | name              | category     | status | department | geometry              |
+| -------- | ----------------- | ------------ | ------ | ---------- | --------------------- |
+| 21180010 | BETANIA - EMBALSE | Limnigráfica | Activa | HUILA      | POINT (-75.524 2.641) |
+| 21190010 | PESCADERO         | Limnimétrica | Activa | HUILA      | POINT (-75.178 2.898) |
+| 21218010 | VILLAVIEJA        | Climática    | Activa | HUILA      | POINT (-75.215 3.213) |
 
 ### Counting categories and statuses
 
@@ -141,8 +141,8 @@ filter it with any standard boolean indexing expression.
     ```
 
 !!! info "Unique values for text columns"
-    Not sure what the exact spelling for a department or category is?
-    Use `.unique()` to see every distinct value in a column:
+Not sure what the exact spelling for a department or category is?
+Use `.unique()` to see every distinct value in a column:
 
     ```python
     print(client.catalog["hydrographic_area"].unique())
@@ -155,25 +155,25 @@ filter it with any standard boolean indexing expression.
 
 The table below lists every column in `client.catalog` and what it contains.
 
-| Column | dtype | Description |
-|---|---|---|
-| `id` | `str` | Official 8-digit IDEAM station code |
-| `name` | `str` | Human-readable station name |
-| `category` | `str` | Station type (e.g. `Climática`, `Limnigráfica`) |
-| `technology` | `str` | Data-collection method (e.g. `Convencional`) |
-| `status` | `str` | `Activa` or `Suspendida` |
-| `department` | `str` | Colombian department (uppercase) |
-| `municipality` | `str` | Municipality within the department |
-| `altitude` | `float` | Elevation above sea level in metres |
-| `longitude` | `float` | Decimal-degree longitude (WGS 84) |
-| `latitude` | `float` | Decimal-degree latitude (WGS 84) |
-| `installation_date` | `datetime64` | Date the station was commissioned |
-| `suspension_date` | `datetime64` | Date the station was decommissioned (`NaT` if still active) |
-| `hydrographic_area` | `str` | Broad hydrographic area (e.g. `Magdalena - Cauca`) |
-| `hydrographic_zone` | `str` | Hydrographic zone within the area |
-| `hydrographic_subzone` | `str` | Hydrographic sub-zone within the zone |
-| `owner` | `str` | Responsible entity (e.g. `IDEAM`) |
-| `geometry` | `Point` | Shapely `Point(longitude, latitude)` |
+| Column                 | dtype        | Description                                                 |
+| ---------------------- | ------------ | ----------------------------------------------------------- |
+| `id`                   | `str`        | Official 8-digit IDEAM station code                         |
+| `name`                 | `str`        | Human-readable station name                                 |
+| `category`             | `str`        | Station type (e.g. `Climática`, `Limnigráfica`)             |
+| `technology`           | `str`        | Data-collection method (e.g. `Convencional`)                |
+| `status`               | `str`        | `Activa` or `Suspendida`                                    |
+| `department`           | `str`        | Colombian department (uppercase)                            |
+| `municipality`         | `str`        | Municipality within the department                          |
+| `altitude`             | `float`      | Elevation above sea level in metres                         |
+| `longitude`            | `float`      | Decimal-degree longitude (WGS 84)                           |
+| `latitude`             | `float`      | Decimal-degree latitude (WGS 84)                            |
+| `installation_date`    | `datetime64` | Date the station was commissioned                           |
+| `suspension_date`      | `datetime64` | Date the station was decommissioned (`NaT` if still active) |
+| `hydrographic_area`    | `str`        | Broad hydrographic area (e.g. `Magdalena - Cauca`)          |
+| `hydrographic_zone`    | `str`        | Hydrographic zone within the area                           |
+| `hydrographic_subzone` | `str`        | Hydrographic sub-zone within the zone                       |
+| `owner`                | `str`        | Responsible entity (e.g. `IDEAM`)                           |
+| `geometry`             | `Point`      | Shapely `Point(longitude, latitude)`                        |
 
 ---
 
@@ -195,10 +195,10 @@ print(station)
 ```
 
 !!! warning "One request per station"
-    `fetch_station()` makes a live request to the Aquarius WebPortal to
-    discover available variables. If you need to hydrate many stations at
-    once, use `client.fetch_stations([ids])` or the spatial helpers described
-    in [Spatial Queries](spatial.md).
+`fetch_station()` makes a live request to the Aquarius WebPortal to
+discover available variables. If you need to hydrate many stations at
+once, use `client.fetch_stations([ids])` or the spatial helpers described
+in [Spatial Queries](spatial.md).
 
 ---
 

@@ -20,9 +20,9 @@ station = client.fetch_station("29037020")
 ```
 
 !!! warning "Network call on every fetch"
-    Unlike reading rows from `client.catalog`, `fetch_station` always makes a
-    live request to the Aquarius WebPortal to discover all variables available
-    at that station. Budget a few seconds per call.
+Unlike reading rows from `client.catalog`, `fetch_station` always makes a
+live request to the Aquarius WebPortal to discover all variables available
+at that station. Budget a few seconds per call.
 
 ---
 
@@ -83,8 +83,8 @@ print(station.suspension_date)    # NaT  ← station is still active
 ```
 
 !!! info "Suspended stations"
-    When `suspension_date` is not `NaT`, the station is no longer collecting
-    data. The `status` field will read `"Suspendida"` in those cases.
+When `suspension_date` is not `NaT`, the station is no longer collecting
+data. The `status` field will read `"Suspendida"` in those cases.
 
 ### `location`
 
@@ -140,10 +140,10 @@ TM@HIS_TR_QS_M                  id=...
 
 Each `Variable` value exposes three attributes:
 
-| Attribute | Type  | Example            |
-|-----------|-------|--------------------|
-| `param`   | `str` | `"CAUDAL"`         |
-| `label`   | `str` | `"HIS_Q_MEDIA_D"`  |
+| Attribute | Type  | Example                     |
+| --------- | ----- | --------------------------- |
+| `param`   | `str` | `"CAUDAL"`                  |
+| `label`   | `str` | `"HIS_Q_MEDIA_D"`           |
 | `id`      | `int` | numeric Aquarius dataset ID |
 
 ---
@@ -162,8 +162,8 @@ if "PRECIPITACION@PP_DIARIA" not in station:
 ```
 
 !!! note "Keys are case-insensitive"
-    Variable keys are normalised to upper-case internally, so both
-    `"CAUDAL@HIS_Q_MEDIA_D"` and `"caudal@his_q_media_d"` work correctly.
+Variable keys are normalised to upper-case internally, so both
+`"CAUDAL@HIS_Q_MEDIA_D"` and `"caudal@his_q_media_d"` work correctly.
 
 To see every available key at once:
 
@@ -199,7 +199,7 @@ Both return a [`Dataset`](datasets.md) containing a pandas `DataFrame` ready
 for analysis.
 
 !!! warning "Error conditions"
-    Two exceptions can be raised when fetching a dataset:
+Two exceptions can be raised when fetching a dataset:
 
     - **`TypeError`** — the station has no variables at all (rare, but
       possible for very old suspended stations).
