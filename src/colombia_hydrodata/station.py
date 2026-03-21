@@ -48,7 +48,34 @@ class Station:
             variables=vars,
         )
 
+    def __getitem__(self, key: str) -> str:
+        if not self.variables:
+            return "There is not dataset for this station."
+        return self.variables[key].fetch_data()
+
+    def __str__(self) -> str:
+        parts = [
+            f"Station {self.name}: {self.id}",
+            f"  {self.municipality} ({self.department})",
+            f"  Info: {self.status} {self.category} ({self.technology})",
+            f"  Time: {self.installation_date} - {'ongoing' if pd.isnull(self.suspension_date) else self.suspension_date}",  # type: ignore
+            f"  Owner: {self.owner}",
+            f"  {self.location}",
+            f"  {self.hydrographic}",
+            "  Variables:",
+        ]
+        if self.variables:
+            groups: dict[str, list[str]] = {}
+            for var in self.variables:
+                group, _, label = var.partition("@")
+                groups.setdefault(group, []).append(label)
+            for group, labels in groups.items():
+                parts.append(f"    {group}:")
+                parts.append(f"       {', '.join(labels)}")
+        return "\n".join(parts)
+
 
 if __name__ == "__main__":
     station = Station.from_stations_df("29037020")
     print(station)
+    print(station["NIVEL@NV_MEDIA_D"])
