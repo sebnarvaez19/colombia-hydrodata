@@ -71,7 +71,7 @@ class Station:
         from colombia_hydrodata.dataset import Dataset
 
         variable = self._resolve_variable(key)
-        return Dataset.from_variable(self, variable)
+        return Dataset.from_variable(self, variable)  # type: ignore
 
     def __getitem__(self, key: str) -> "Dataset":
         return self.fetch(key)
