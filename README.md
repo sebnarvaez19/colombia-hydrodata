@@ -1,119 +1,87 @@
 # Colombia Hydrodata
-(README.md made with ChatGPT).
-
 
 Python client to access **hydrological and meteorological data from Colombia**.
 
 The library integrates multiple official data sources and exposes them through a simple and Pythonic API.
 
-Data is mainly fetched from:
+Data is fetched from:
 
-* [Datos Abiertos Colombia](https://datos.gov.co/)
-* [AQUARIUS WebPortal](http://aquariuswebportal.ideam.gov.co/)
-
----
-
-# Architecture Overview
-
-The library follows a **client–resource architecture**.
-
-```
-HydroClient
-    ↓
-Station
-    ↓
-Dataset
-```
-
-* **HydroClient** handles HTTP communication and catalog management.
-* **Station** represents an IDEAM monitoring station and its metadata.
-* **Dataset** represents a time series retrieved from Aquarius.
+- [Catálogo Nacional de Estaciones – Datos Abiertos Colombia](https://datos.gov.co/Ambiente-y-Desarrollo-Sostenible/Cat-logo-Nacional-de-Estaciones-del-IDEAM/hp9r-jxuu)
+- [AQUARIUS WebPortal – IDEAM](http://aquariuswebportal.ideam.gov.co/)
 
 ---
 
-# Features
+## Architecture
 
-## HydroClient
+The library follows a **client → station → dataset** hierarchy.
 
-`HydroClient` is the **main entry point** of the library.
+```
+Client
+  └── Station
+        └── Dataset
+```
 
-It loads the **IDEAM station catalog** and exposes methods to query stations and retrieve datasets.
+- **`Client`** loads the station catalog and exposes methods to query and filter stations.
+- **`Station`** represents an IDEAM monitoring station with its full metadata and available variables.
+- **`Dataset`** represents a time series retrieved from the Aquarius WebPortal.
+
+---
+
+## Installation
+
+```bash
+pip install colombia-hydrodata
+```
+
+Or with Poetry:
+
+```bash
+poetry add colombia-hydrodata
+```
+
+---
+
+## Quick Start
 
 ```python
-from colombia_hydrodata import HydroClient
+from colombia_hydrodata.client import Client
 
-client = HydroClient()
+client = Client()
+
+# Fetch a single station
+station = client.fetch_station("29037020")
+print(station)
+
+# Fetch its discharge time series
+dataset = station["CAUDAL@HIS_Q_MEDIA_D"]
+print(dataset.data)
 ```
-
-When the client is initialized:
-
-1. The **station catalog** is loaded from Datos Abiertos Colombia.
-2. The catalog is cached locally to avoid repeated downloads.
-3. The catalog is stored internally as a **pandas DataFrame**.
 
 ---
 
-# Station Catalog
+## Client
 
-Station metadata comes from the IDEAM dataset:
+`Client` is the main entry point. On initialization it downloads the full IDEAM station catalog from Datos Abiertos Colombia and stores it internally as a **GeoDataFrame**.
 
-**Catálogo Nacional de Estaciones IDEAM**
+```python
+from colombia_hydrodata.client import Client
 
-Source:
-
-[https://datos.gov.co/Ambiente-y-Desarrollo-Sostenible/Cat-logo-Nacional-de-Estaciones-del-IDEAM/hp9r-jxuu](https://datos.gov.co/Ambiente-y-Desarrollo-Sostenible/Cat-logo-Nacional-de-Estaciones-del-IDEAM/hp9r-jxuu)
-
-The catalog is downloaded through the **Socrata SODA API** using pagination.
+client = Client()
+```
 
 ---
 
-# Disk Caching
+## Fetching Stations
 
-The station catalog is cached locally to improve performance.
-
-Caching uses the library:
-
-```
-platformdirs
-```
-
-Cache location (OS dependent):
-
-| OS      | Cache Directory                            |
-| ------- | ------------------------------------------ |
-| Linux   | `~/.cache/colombia_hydrodata/`             |
-| macOS   | `~/Library/Caches/colombia_hydrodata/`     |
-| Windows | `%LOCALAPPDATA%\colombia_hydrodata\Cache\` |
-
-Cached file:
-
-```
-stations_catalog.parquet
-```
-
-Cache behavior:
-
-* loaded automatically when the client starts
-* refreshed if the cache expires
-* can be refreshed manually
-
-This avoids unnecessary API calls and makes the client **start almost instantly** after the first execution.
-
----
-
-# Fetching Stations
-
-## Fetch a single station
+### Single station
 
 ```python
 station = client.fetch_station("29037020")
 ```
 
-Returns a `Station` object.
+Returns a `Station` object with full metadata.
 
----
-
-## Fetch multiple stations
+### Multiple stations by ID
 
 ```python
 stations = client.fetch_stations(["29037020", "29037021"])
@@ -123,736 +91,198 @@ Returns a list of `Station` objects.
 
 ---
 
-# Spatial Queries
+## Spatial Queries
 
-Stations can be queried spatially using bounding boxes or geometries.
-
----
-
-## Fetch stations in bounding box
+### Bounding box
 
 ```python
-stations = client.fetch_bbox(-74.25, -4.25, -73.5, -3.5)
-```
-
-Returns station objects with metadata.
-
----
-
-## Fetch stations in region
-
-```python
-stations = client.fetch_region(geometry)
-```
-
-The geometry can be:
-
-* shapely polygon
-* GeoJSON geometry
-* GeoPandas geometry
-
----
-
-## Get station list only
-
-To obtain metadata without loading datasets:
-
-```python
-stations = client.stations_in_region(geometry)
-```
-
----
-
-## Nearest station
-
-Find the closest station to a given coordinate.
-
-```python
-station = client.fetch_nearest(lon, lat)
-```
-
-Distance is computed using station coordinates from the catalog.
-
----
-
-# Station Filtering
-
-Stations can be filtered using a dedicated **StationFilter** class.
-
-```python
-from colombia_hydrodata import HydroClient, StationFilter
-
-client = HydroClient()
-
-filters = StationFilter(type=["limnigraphic", "limnimetric"])
-
-stations = client.fetch_region(polygon, filters=filters)
-```
-
-Filters are validated to avoid invalid parameters.
-
-Possible filter fields include:
-
-* station type
-* department
-* municipality
-* variables
-* operational state
-
-Multiple filters are combined using logical **AND**, while lists represent **OR** conditions.
-
----
-
-# Stations
-
-`Station` objects represent IDEAM monitoring stations.
-
-Stations are implemented as **dataclasses with read-only attributes**.
-
-A station contains metadata and information about available variables.
-
-```
-Station
-  id
-  name
-  type
-  technology
-  state
-  department
-  municipality
-  altitude
-  longitude
-  latitude
-  installation_date
-  suspension_date
-  operative_area
-  river
-  AH   (Hydrographic Area)
-  ZH   (Hydrographic Zone)
-  SZH  (Hydrographic Subzone)
-  entity
-```
-
-Stations also list the variables measured by the station and the time frequencies available.
-
-Example:
-
-```
-variables:
-  rainfall: ["D", "M", "A"]
-  stage: ["H", "D", "M", "A"]
-  discharge: ["H", "D", "M", "A"]
-```
-
----
-
-# Fetching Data
-
-Datasets are retrieved from the **Aquarius WebPortal**.
-
-Each variable and frequency corresponds to an Aquarius dataset.
-
-Example:
-
-```python
-dataset = station.fetch("stage", "H")
-```
-
-This process:
-
-1. identifies the Aquarius dataset
-2. retrieves the time series
-3. returns a `Dataset` object
-
----
-
-# Dataset
-
-A `Dataset` represents a **time series associated with a station**.
-
-Internally, the data is stored as a **pandas DataFrame**.
-
-Example structure:
-
-```
-Dataset
-  station
-  variable
-  frequency
-  data
-```
-
-Example dataframe:
-
-| timestamp  | value |
-| ---------- | ----- |
-| 2025-01-01 | 2.31  |
-| 2025-01-02 | 2.28  |
-
----
-
-# Dataset Operations
-
-Datasets include utilities for analysis and export.
-
-### Plot time series
-
-```python
-dataset.plot()
-```
-
----
-
-### Export data
-
-```python
-dataset.to_csv()
-dataset.to_parquet()
-```
-
----
-
-### Convert to spatial data
-
-```python
-dataset.to_geodataframe()
-```
-
-Returns a **GeoDataFrame** with station geometry.
-
----
-
-# Stage (River Level) Data
-
-The variable **stage** represents the water level relative to the gauge reference.
-
-In Colombian hydrology it is common to convert stage to **absolute water elevation** using the **station sight level (cota de mira)**.
-
----
-
-# Sight Level Correction
-
-Users can apply sight level corrections when fetching stage data.
-
-## Constant sight level
-
-```python
-dataset = station.fetch(
-    "stage",
-    "H",
-    sight_level=124.80
+stations = client.fetch_bbox(
+    xmin=-75.0,
+    ymin=9.5,
+    xmax=-74.0,
+    ymax=10.5
 )
 ```
 
-Elevation is computed as:
+### Shapely geometry
 
+```python
+from shapely.geometry import Polygon
+
+region = Polygon(...)
+stations = client.fetch_region(region)
 ```
-elevation = stage + sight_level
+
+### Catalog only (no Station objects)
+
+To get a lightweight GeoDataFrame of station metadata without instantiating `Station` objects:
+
+```python
+gdf = client.stations_in_region(region)
+gdf = client.stations_in_list(["29037020", "29037021"])
 ```
 
 ---
 
-## Time-varying sight levels
+## Filtering Stations
 
-Stations sometimes change gauge reference.
-
-Users can define time-dependent corrections.
+Use the `Filters` dataclass to narrow results by metadata fields. All filters are combined with logical **AND** and are optional.
 
 ```python
-dataset = station.fetch(
-    "stage",
-    "H",
-    sight_level=[
-        ("2000-01-01", 124.80),
-        ("2015-06-01", 125.10)
-    ]
+from colombia_hydrodata.client import Client
+from colombia_hydrodata.filters import Filters
+
+client = Client()
+
+filters = Filters(
+    category="Limnimétrica",
+    department="Bolivar",
+    status="Activa",
 )
+
+stations = client.fetch_region(region, filters=filters)
 ```
+
+Available filter fields:
+
+| Field                  | Description              |
+|------------------------|--------------------------|
+| `category`             | Station category         |
+| `department`           | Department               |
+| `municipality`         | Municipality             |
+| `status`               | Operational status       |
+| `owner`                | Owning institution       |
+| `hydrographic_area`    | Hydrographic area        |
+| `hydrographic_zone`    | Hydrographic zone        |
+| `hydrographic_subzone` | Hydrographic subzone     |
 
 ---
 
-## Apply correction after fetching
+## Station
 
-```python
-dataset.apply_sight_level(124.8)
-```
-
-or
-
-```python
-dataset.apply_sight_level([
-    ("2000-01-01", 124.8),
-    ("2015-01-01", 125.1)
-])
-```
-
----
-
-# Mapping Stations
-
-Stations can be visualized spatially.
-
-```python
-client.map_stations(stations)
-```
-
-This creates a map showing station locations.
-
----
-
-# Dependencies
-
-Core dependencies:
-
-```
-requests
-pandasHere is the **updated and consolidated design sheet**, integrating everything we discussed today:
-
-* `HydroClient` architecture
-* `Station` and `Dataset` dataclasses
-* `StationFilter`
-* spatial queries
-* Aquarius data fetching
-* stage **sight level correction**
-* **disk caching using `platformdirs`**
-* station catalog from **datos.gov.co**
-
-I kept the tone **documentation-friendly** so this can become your **README.md** or **design.md** directly.
-
----
-
-# Colombia Hydrodata
-
-Python client to access **hydrological and meteorological data from Colombia**.
-
-The library integrates multiple official data sources and exposes them through a simple and Pythonic API.
-
-Data is mainly fetched from:
-
-* Instituto de Hidrología, Meteorología y Estudios Ambientales (IDEAM)
-* Datos Abiertos Colombia
-* Aquarius WebPortal
-
----
-
-# Architecture Overview
-
-The library follows a **client–resource architecture**.
-
-```
-HydroClient
-    ↓
-Station
-    ↓
-Dataset
-```
-
-* **HydroClient** handles HTTP communication and catalog management.
-* **Station** represents an IDEAM monitoring station and its metadata.
-* **Dataset** represents a time series retrieved from Aquarius.
-
----
-
-# Features
-
-## HydroClient
-
-`HydroClient` is the **main entry point** of the library.
-
-It loads the **IDEAM station catalog** and exposes methods to query stations and retrieve datasets.
-
-```python
-from colombia_hydrodata import HydroClient
-
-client = HydroClient()
-```
-
-When the client is initialized:
-
-1. The **station catalog** is loaded from Datos Abiertos Colombia.
-2. The catalog is cached locally to avoid repeated downloads.
-3. The catalog is stored internally as a **pandas DataFrame**.
-
----
-
-# Station Catalog
-
-Station metadata comes from the IDEAM dataset:
-
-**Catálogo Nacional de Estaciones IDEAM**
-
-Source:
-
-[https://datos.gov.co/Ambiente-y-Desarrollo-Sostenible/Cat-logo-Nacional-de-Estaciones-del-IDEAM/hp9r-jxuu](https://datos.gov.co/Ambiente-y-Desarrollo-Sostenible/Cat-logo-Nacional-de-Estaciones-del-IDEAM/hp9r-jxuu)
-
-The catalog is downloaded through the **Socrata SODA API** using pagination.
-
----
-
-# Disk Caching
-
-The station catalog is cached locally to improve performance.
-
-Caching uses the library:
-
-```
-platformdirs
-```
-
-Cache location (OS dependent):
-
-| OS      | Cache Directory                            |
-| ------- | ------------------------------------------ |
-| Linux   | `~/.cache/colombia_hydrodata/`             |
-| macOS   | `~/Library/Caches/colombia_hydrodata/`     |
-| Windows | `%LOCALAPPDATA%\colombia_hydrodata\Cache\` |
-
-Cached file:
-
-```
-stations_catalog.parquet
-```
-
-Cache behavior:
-
-* loaded automatically when the client starts
-* refreshed if the cache expires
-* can be refreshed manually
-
-This avoids unnecessary API calls and makes the client **start almost instantly** after the first execution.
-
----
-
-# Fetching Stations
-
-## Fetch a single station
+A `Station` is a **frozen dataclass** (read-only) with full metadata about an IDEAM monitoring station.
 
 ```python
 station = client.fetch_station("29037020")
+print(station)
 ```
 
-Returns a `Station` object.
+Example output:
 
----
+```
+Station CALAMAR: 29037020
+  Calamar (Bolivar)
+  Info: Activa Limnimétrica (Convencional)
+  Time: 1940-07-15 00:00:00 - ongoing
+  Owner: INSTITUTO DE HIDROLOGÍA METEOROLOGÍA Y ESTUDIOS AMBIENTALES
+  Location: altitude=8.00 [-74.915; 10.243]
+  Hydrographic: area=Magdalena Cauca zone=Bajo Magdalena subzone=Canal del Dique margen izquierda
+  Variables:
+    CAUDAL:
+       HIS_Q_MEDIA_D, HIS_Q_MX_M, HIS_Q_MEDIA_M, Q_MN_D, Q_MN_M, Q_MX_D, Q_MX_M, Q_MN_A, Q_MX_A, Q_MEDIA_A, CAUDAL_H
+    NIVEL:
+       NVLM_CON, HIS_NV_MEDIA_D, HIS_NV_MN_M, HIS_NV_MX_M, NIVEL_H, NV_MEDIA_D, NV_MN_D, NV_MN_M, NV_MX_D, NV_MX_M, NV_MN_A, NV_MX_A, NV_MEDIA_A, HIS_NIVEL_H
+    TM:
+       HIS_TR_QS_M, HIS_TR_QS_TT_M, HIS_TR_QS_MX_M, HIS_TR_KT/D_QS_D
+```
 
-## Fetch multiple stations
+### Station attributes
+
+| Attribute           | Description                        |
+|---------------------|------------------------------------|
+| `id`                | Station code                       |
+| `name`              | Station name                       |
+| `category`          | Category (e.g. Limnimétrica)       |
+| `technology`        | Technology (e.g. Convencional)     |
+| `status`            | Operational status                 |
+| `department`        | Department                         |
+| `municipality`      | Municipality                       |
+| `installation_date` | Date the station was installed     |
+| `suspension_date`   | Date suspended (`None` if active)  |
+| `owner`             | Owning institution                 |
+| `location`          | `Location` (altitude, lon, lat)    |
+| `hydrographic`      | `Hydrographic` (area, zone, subzone)|
+| `variables`         | Dict of available `Variable` objects|
+
+### Checking variable availability
 
 ```python
-stations = client.fetch_stations(["29037020", "29037021"])
+"CAUDAL@HIS_Q_MEDIA_D" in station  # True / False
 ```
 
-Returns a list of `Station` objects.
-
 ---
 
-# Spatial Queries
+## Fetching Data
 
-Stations can be queried spatially using bounding boxes or geometries.
+Variables are identified by a key in the format `PARAM@LABEL`, matching the variables listed when you print a station.
 
----
-
-## Fetch stations in bounding box
+### Using `fetch()`
 
 ```python
-stations = client.fetch_bbox(-74.25, -4.25, -73.5, -3.5)
+dataset = station.fetch("CAUDAL@HIS_Q_MEDIA_D")
 ```
 
-Returns station objects with metadata.
-
----
-
-## Fetch stations in region
+### Using `[]` (shorthand)
 
 ```python
-stations = client.fetch_region(geometry)
+dataset = station["CAUDAL@HIS_Q_MEDIA_D"]
 ```
 
-The geometry can be:
-
-* shapely polygon
-* GeoJSON geometry
-* GeoPandas geometry
+Both return a `Dataset` object.
 
 ---
 
-## Get station list only
+## Dataset
 
-To obtain metadata without loading datasets:
+A `Dataset` represents a **time series associated with a station and a variable**.
 
 ```python
-stations = client.stations_in_region(geometry)
+dataset = station["NIVEL@NV_MEDIA_D"]
+
+print(dataset.station)    # Station object
+print(dataset.variable)   # Variable object (param, label, id)
+print(dataset.data)       # pandas DataFrame
 ```
 
----
+The `data` DataFrame has two columns:
 
-## Nearest station
-
-Find the closest station to a given coordinate.
-
-```python
-station = client.fetch_nearest(lon, lat)
-```
-
-Distance is computed using station coordinates from the catalog.
-
----
-
-# Station Filtering
-
-Stations can be filtered using a dedicated **StationFilter** class.
-
-```python
-from colombia_hydrodata import HydroClient, StationFilter
-
-client = HydroClient()
-
-filters = StationFilter(type=["limnigraphic", "limnimetric"])
-
-stations = client.fetch_region(polygon, filters=filters)
-```
-
-Filters are validated to avoid invalid parameters.
-
-Possible filter fields include:
-
-* station type
-* department
-* municipality
-* variables
-* operational state
-
-Multiple filters are combined using logical **AND**, while lists represent **OR** conditions.
-
----
-
-# Stations
-
-`Station` objects represent IDEAM monitoring stations.
-
-Stations are implemented as **dataclasses with read-only attributes**.
-
-A station contains metadata and information about available variables.
-
-```
-Station
-  id
-  name
-  type
-  technology
-  state
-  department
-  municipality
-  altitude
-  longitude
-  latitude
-  installation_date
-  suspension_date
-  operative_area
-  river
-  AH   (Hydrographic Area)
-  ZH   (Hydrographic Zone)
-  SZH  (Hydrographic Subzone)
-  entity
-```
-
-Stations also list the variables measured by the station and the time frequencies available.
+| Column      | Description         |
+|-------------|---------------------|
+| `timestamp` | datetime            |
+| `value`     | numeric measurement |
 
 Example:
 
 ```
-variables:
-  rainfall: ["D", "M", "A"]
-  stage: ["H", "D", "M", "A"]
-  discharge: ["H", "D", "M", "A"]
+   timestamp   value
+0  2025-01-01   2.31
+1  2025-01-02   2.28
+2  2025-01-03   2.35
 ```
 
 ---
 
-# Fetching Data
+## Data Sources
 
-Datasets are retrieved from the **Aquarius WebPortal**.
+### Station Catalog
 
-Each variable and frequency corresponds to an Aquarius dataset.
+Fetched from the **Socrata SODA API** via Datos Abiertos Colombia:
 
-Example:
-
-```python
-dataset = station.fetch("stage", "H")
+```
+https://datos.gov.co/resource/hp9r-jxuu.json
 ```
 
-This process:
+### Time Series
 
-1. identifies the Aquarius dataset
-2. retrieves the time series
-3. returns a `Dataset` object
+Fetched from the **IDEAM Aquarius WebPortal**:
+
+```
+http://aquariuswebportal.ideam.gov.co/
+```
+
+Each variable key (`PARAM@LABEL`) corresponds to a unique Aquarius dataset ID used internally to retrieve the time series.
 
 ---
 
-# Dataset
+*README made with [GitHub Copilot](https://github.com/features/copilot).*
 
-A `Dataset` represents a **time series associated with a station**.
-
-Internally, the data is stored as a **pandas DataFrame**.
-
-Example structure:
-
-```
-Dataset
-  station
-  variable
-  frequency
-  data
-```
-
-Example dataframe:
-
-| timestamp  | value |
-| ---------- | ----- |
-| 2025-01-01 | 2.31  |
-| 2025-01-02 | 2.28  |
-
----
-
-# Dataset Operations
-
-Datasets include utilities for analysis and export.
-
-### Plot time series
-
-```python
-dataset.plot()
-```
-
----
-
-### Export data
-
-```python
-dataset.to_csv()
-dataset.to_parquet()
-```
-
----
-
-### Convert to spatial data
-
-```python
-dataset.to_geodataframe()
-```
-
-Returns a **GeoDataFrame** with station geometry.
-
----
-
-# Stage (River Level) Data
-
-The variable **stage** represents the water level relative to the gauge reference.
-
-In Colombian hydrology it is common to convert stage to **absolute water elevation** using the **station sight level (cota de mira)**.
-
----
-
-# Sight Level Correction
-
-Users can apply sight level corrections when fetching stage data.
-
-## Constant sight level
-
-```python
-dataset = station.fetch(
-    "stage",
-    "H",
-    sight_level=124.80
-)
-```
-
-Elevation is computed as:
-
-```
-elevation = stage + sight_level
-```
-
----
-
-## Time-varying sight levels
-
-Stations sometimes change gauge reference.
-
-Users can define time-dependent corrections.
-
-```python
-dataset = station.fetch(
-    "stage",
-    "H",
-    sight_level=[
-        ("2000-01-01", 124.80),
-        ("2015-06-01", 125.10)
-    ]
-)
-```
-
----
-
-## Apply correction after fetching
-
-```python
-dataset.apply_sight_level(124.8)
-```
-
-or
-
-```python
-dataset.apply_sight_level([
-    ("2000-01-01", 124.8),
-    ("2015-01-01", 125.1)
-])
-```
-
----
-
-# Mapping Stations
-
-Stations can be visualized spatially.
-
-```python
-client.map_stations(stations)
-```
-
-This creates a map showing station locations.
-
----
-
-# Dependencies
-
-Core dependencies:
-
-```
-requests
-pandas
-aquarius_webportal
-platformdirs
-```
-
-Optional spatial dependencies:
-
-```
-geopandas
-shapely
-folium
-```
-
----
-
-# Example Workflow
-
-```python
-from colombia_hydrodata import HydroClient
-
-client = HydroClient()
-
-station = client.fetch_station("29037020")
-
-dataset = station.fetch("stage", "H", sight_level=124.8)
-
-dataset.plot()
-```
