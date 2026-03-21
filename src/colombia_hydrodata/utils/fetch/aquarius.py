@@ -1,12 +1,22 @@
 from typing import TypedDict
 
 import pandas as pd
+import requests as rq
 from aquarius_webportal import AquariusWebPortal
 
 from colombia_hydrodata.utils.cache import save_table
-from colombia_hydrodata.utils.endpoints import aquarius_webportal
+from colombia_hydrodata.utils.endpoints import aquarius_webportal, aquarius_webportal_datasets
 
-wp = AquariusWebPortal(aquarius_webportal)
+WP = AquariusWebPortal(aquarius_webportal)
+DATASET_DEFAULT_PARAMS = {
+    "sort": "TimeStamp-asc",
+    "page": 1,
+    "pageSize": int(1e13),
+    "interval": "Latest",
+    "timezone": -300,
+    "alldata": "true",
+    "virtual": "true",
+}
 
 
 class DatasetInfo(TypedDict):
@@ -18,8 +28,8 @@ class DatasetInfo(TypedDict):
 @save_table("aquarius_datasets")
 def aquarius_datasets() -> pd.DataFrame:
     datasets = []
-    for param in wp.fetch_params()["param_name"]:
-        datasets.append(wp.fetch_datasets(param_name=param))
+    for param in WP.fetch_params()["param_name"]:
+        datasets.append(WP.fetch_datasets(param_name=param))
     datasets = pd.concat(datasets, ignore_index=True)
     return datasets
 
@@ -31,12 +41,15 @@ def station_datasets(station_id: str) -> dict[str, DatasetInfo]:
     return {f"{dataset['param']}@{dataset['label']}": dataset for dataset in datasets}  # type: ignore
 
 
-if __name__ == "__main__":
-    import time
-    from pprint import pprint
+def dataset(dataset_id: int, params: dict[str, str | float] | None = None) -> pd.DataFrame:
+    user_params = {} if not params else params
+    response = rq.get(aquarius_webportal_datasets, params=dict(DATASET_DEFAULT_PARAMS, **user_params, **{"dataset": dataset_id}))
+    data = pd.DataFrame(response.json()["Data"])
+    data["TimeStamp"] = pd.to_datetime(data["TimeStamp"], errors="coerce")
+    data["Value"] = pd.to_numeric(data["Value"], errors="coerce")
+    return data[["TimeStamp", "Value"]].rename(columns={"TimeStamp": "timestamp", "Value": "value"})  # type: ignore
 
-    start = time.time()
-    datasets = station_datasets("29037020")
-    end = time.time()
-    print(f"Time taken: {end - start} seconds")
-    pprint(datasets)
+
+if __name__ == "__main__":
+    df = dataset(dataset_id=514044)
+    print(df)
