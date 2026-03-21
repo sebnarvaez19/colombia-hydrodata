@@ -1,5 +1,8 @@
 # Colombia Hydrodata
 
+[![PyPI](https://img.shields.io/pypi/v/colombia-hydrodata)](https://pypi.org/project/colombia-hydrodata/)
+[![Docs](https://img.shields.io/badge/docs-online-teal)](https://sebnarvaez19.github.io/colombia-hydrodata/)
+
 Python client to access **hydrological and meteorological data from Colombia**.
 
 The library integrates multiple official data sources and exposes them through a simple and Pythonic API.
@@ -145,16 +148,16 @@ stations = client.fetch_region(region, filters=filters)
 
 Available filter fields:
 
-| Field                  | Description              |
-|------------------------|--------------------------|
-| `category`             | Station category         |
-| `department`           | Department               |
-| `municipality`         | Municipality             |
-| `status`               | Operational status       |
-| `owner`                | Owning institution       |
-| `hydrographic_area`    | Hydrographic area        |
-| `hydrographic_zone`    | Hydrographic zone        |
-| `hydrographic_subzone` | Hydrographic subzone     |
+| Field                  | Description          |
+| ---------------------- | -------------------- |
+| `category`             | Station category     |
+| `department`           | Department           |
+| `municipality`         | Municipality         |
+| `status`               | Operational status   |
+| `owner`                | Owning institution   |
+| `hydrographic_area`    | Hydrographic area    |
+| `hydrographic_zone`    | Hydrographic zone    |
+| `hydrographic_subzone` | Hydrographic subzone |
 
 ---
 
@@ -188,21 +191,21 @@ Station CALAMAR: 29037020
 
 ### Station attributes
 
-| Attribute           | Description                        |
-|---------------------|------------------------------------|
-| `id`                | Station code                       |
-| `name`              | Station name                       |
-| `category`          | Category (e.g. Limnimétrica)       |
-| `technology`        | Technology (e.g. Convencional)     |
-| `status`            | Operational status                 |
-| `department`        | Department                         |
-| `municipality`      | Municipality                       |
-| `installation_date` | Date the station was installed     |
-| `suspension_date`   | Date suspended (`None` if active)  |
-| `owner`             | Owning institution                 |
-| `location`          | `Location` (altitude, lon, lat)    |
-| `hydrographic`      | `Hydrographic` (area, zone, subzone)|
-| `variables`         | Dict of available `Variable` objects|
+| Attribute           | Description                          |
+| ------------------- | ------------------------------------ |
+| `id`                | Station code                         |
+| `name`              | Station name                         |
+| `category`          | Category (e.g. Limnimétrica)         |
+| `technology`        | Technology (e.g. Convencional)       |
+| `status`            | Operational status                   |
+| `department`        | Department                           |
+| `municipality`      | Municipality                         |
+| `installation_date` | Date the station was installed       |
+| `suspension_date`   | Date suspended (`None` if active)    |
+| `owner`             | Owning institution                   |
+| `location`          | `Location` (altitude, lon, lat)      |
+| `hydrographic`      | `Hydrographic` (area, zone, subzone) |
+| `variables`         | Dict of available `Variable` objects |
 
 ### Checking variable availability
 
@@ -247,7 +250,7 @@ print(dataset.data)       # pandas DataFrame
 The `data` DataFrame has two columns:
 
 | Column      | Description         |
-|-------------|---------------------|
+| ----------- | ------------------- |
 | `timestamp` | datetime            |
 | `value`     | numeric measurement |
 
@@ -284,5 +287,4 @@ Each variable key (`PARAM@LABEL`) corresponds to a unique Aquarius dataset ID us
 
 ---
 
-*README made with [GitHub Copilot](https://github.com/features/copilot).*
-
+_README made with [GitHub Copilot](https://github.com/features/copilot)._
