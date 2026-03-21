@@ -5,7 +5,7 @@ from typing import Self
 import pandas as pd
 
 from colombia_hydrodata.attributes import Hydrographic, Location, Variable
-from colombia_hydrodata.utils.fetch.aquarius import station_datasets
+from colombia_hydrodata.utils.fetch.aquarius import dataset, station_datasets
 from colombia_hydrodata.utils.fetch.stations import station_data, station_hydrographic_data, station_location_data
 
 
@@ -48,10 +48,25 @@ class Station:
             variables=vars,
         )
 
-    def __getitem__(self, key: str) -> str:
+    def _resolve_variable(self, key: str) -> Variable:
+        key = key.upper()
         if not self.variables:
-            return "There is not dataset for this station."
-        return self.variables[key].fetch_data()
+            raise TypeError("There are not variable for this station.")
+        try:
+            return self.variables[key]
+        except KeyError:
+            raise KeyError(f"Variable {key} not found. Available variables: {', '.join(self.variables.keys())}")
+
+    def __contains__(self, key: str) -> bool:
+        try:
+            self._resolve_variable(key)
+            return True
+        except Exception:
+            return False
+
+    def __getitem__(self, key: str) -> str:
+        variable = self._resolve_variable(key)
+        return dataset(variable.id)  # type: ignore # TODO: implement Dataset class and real data flow.
 
     def __str__(self) -> str:
         parts = [
