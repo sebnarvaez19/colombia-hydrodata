@@ -19,3 +19,12 @@ class Dataset:
     @classmethod
     def from_variable(cls, station: "Station", variable: Variable) -> Self:
         return cls(station, variable, dataset(variable.id))
+
+    def __str__(self) -> str:
+        parts = [
+            f"Datset from Station {self.station.name}: {self.station.id}",
+            f"{self.station.municipality} ({self.station.department})",
+            f"{self.variable}",
+        ]
+
+        return ", ".join(parts)
