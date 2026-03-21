@@ -23,15 +23,15 @@ class Location:
 class Hydrographic:
     hydrographic_area: str
     hydrographic_zone: str
-    hydrigraphic_subzone: str
+    hydrographic_subzone: str
 
     def __str__(self) -> str:
-        return f"Hydrographic: area={self.hydrographic_area} zone={self.hydrographic_zone} subzone={self.hydrigraphic_subzone}"
+        return f"Hydrographic: area={self.hydrographic_area} zone={self.hydrographic_zone} subzone={self.hydrographic_subzone}"
 
     @classmethod
     def from_stations_df(cls, station_id: str) -> Self:
         hd = station_hydrographic_data(station_id)
-        return cls(hydrographic_area=hd["hydrographic_area"], hydrographic_zone=hd["hydrographic_zone"], hydrigraphic_subzone=hd["hydrographic_subzone"])
+        return cls(hydrographic_area=hd["hydrographic_area"], hydrographic_zone=hd["hydrographic_zone"], hydrographic_subzone=hd["hydrographic_subzone"])
 
 
 @dataclass(frozen=True)
