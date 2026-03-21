@@ -1,12 +1,15 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
 import pandas as pd
 
 from colombia_hydrodata.attributes import Hydrographic, Location, Variable
-from colombia_hydrodata.utils.fetch.aquarius import dataset, station_datasets
+from colombia_hydrodata.utils.fetch.aquarius import station_datasets
 from colombia_hydrodata.utils.fetch.stations import station_data, station_hydrographic_data, station_location_data
+
+if TYPE_CHECKING:
+    from colombia_hydrodata.dataset import Dataset
 
 
 @dataclass(frozen=True)
@@ -64,9 +67,14 @@ class Station:
         except Exception:
             return False
 
-    def __getitem__(self, key: str) -> str:
+    def fetch(self, key: str) -> "Dataset":
+        from colombia_hydrodata.dataset import Dataset
+
         variable = self._resolve_variable(key)
-        return dataset(variable.id)  # type: ignore # TODO: implement Dataset class and real data flow.
+        return Dataset.from_variable(self, variable)
+
+    def __getitem__(self, key: str) -> "Dataset":
+        return self.fetch(key)
 
     def __str__(self) -> str:
         parts = [
