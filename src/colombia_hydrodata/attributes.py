@@ -42,6 +42,3 @@ class Variable:
 
     def __str__(self) -> str:
         return f"{self.param}@{self.label}".upper()
-
-    def fetch_data(self) -> str:
-        return f"{str(self)}: ({self.id=})"  # TODO: Fetch dataset logic
