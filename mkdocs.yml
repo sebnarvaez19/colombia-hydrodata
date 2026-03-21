@@ -1,0 +1,84 @@
+site_name: Colombia Hydrodata
+site_description: Python client to access hydrological and meteorological data from Colombia
+site_author: Sebastián Narváez
+site_url: https://colombia-hydrodata.readthedocs.io
+repo_url: https://github.com/sebnarvaez19/colombia-hydrodata
+repo_name: sebnarvaez19/colombia-hydrodata
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: teal
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: teal
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_source: false
+            show_root_heading: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            members_order: source
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Tutorial:
+    - Client: tutorial/client.md
+    - Stations: tutorial/stations.md
+    - Datasets: tutorial/datasets.md
+    - Spatial Queries: tutorial/spatial.md
+  - How-to Guides:
+    - Filter Stations: how-to/filter-stations.md
+    - Spatial Queries: how-to/spatial-queries.md
+  - Reference:
+    - Client: reference/client.md
+    - Station: reference/station.md
+    - Dataset: reference/dataset.md
+    - Filters: reference/filters.md
+    - Attributes: reference/attributes.md
+  - Explanation:
+    - Architecture: explanation/architecture.md
+    - Data Sources: explanation/data-sources.md
+    - Variable Keys: explanation/variable-keys.md
