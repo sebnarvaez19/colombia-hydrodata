@@ -5,6 +5,7 @@ import pandas as pd
 
 from colombia_hydrodata.attributes import Variable
 from colombia_hydrodata.utils.fetch.aquarius import dataset
+from colombia_hydrodata.utils import tsa
 
 if TYPE_CHECKING:
     from colombia_hydrodata.station import Station
@@ -52,3 +53,27 @@ class Dataset:
         ]
 
         return ", ".join(parts)
+
+    def detrend(self, **kwargs) -> "Dataset":
+        trend, detrended = tsa.detrend(self.data["value"].copy(), **kwargs)
+        self.data["trend"] = trend
+        self.data["detrended"] = detrended
+        return self
+
+    def seasonal(self) -> "Dataset":
+        if "detrended" not in self.data.columns:
+            raise KeyError("Detrend process must be performed")
+        seasonal = tsa.seasonal_series(self.data["detrended"].copy(), self.data["timestamp"].copy())
+        self.data["seasonal"] = seasonal
+        return self
+
+    def anomalies(self) -> "Dataset":
+        if "seasonal" not in self.data.columns:
+            raise KeyError("Seasonal process must be performed")
+        anomalies = tsa.anomalies_series(self.data["detrended"].copy(), self.data["seasonal"].copy())
+        self.data["anomalies"] = anomalies
+        return self
+
+    def deconstruction(self, **kwargs) -> "Dataset":
+        self.data = tsa.deconstruction(self.data["value"].copy(), self.data["timestamp"].copy(), **kwargs)
+        return self
