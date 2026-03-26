@@ -54,6 +54,57 @@ class Dataset:
 
         return ", ".join(parts)
 
+    def sight_level(self, level: float) -> Self:
+        """Adjust observed stage values by subtracting the sight level reference.
+
+        The sight level is the difference between the observable (staff gauge)
+        reading and the absolute sea-level elevation of the zero mark. Applying
+        it converts raw gauge readings into elevation-referenced stage values,
+        enabling meaningful comparison of water levels across stations along
+        the same river reach.
+
+        Note:
+            This method is intended exclusively for stage datasets, i.e.
+            variables whose key starts with ``'NIVEL'``. Applying it to other
+            variable types produces meaningless results.
+
+        Args:
+            level: The sight level offset (in the same units as the observed
+                values, typically metres) to subtract from every observation.
+
+        Returns:
+            A new Dataset instance with adjusted ``value`` column, leaving
+            the original unchanged.
+        """
+        new_data = self.data.copy()
+        new_data["value"] = new_data["value"] - level
+        return replace(self, data=new_data)
+
+    def rescale(self, scale: float) -> Self:
+        """Convert observed values from one measurement unit to another.
+
+        Multiplies every value in the series by a conversion factor, allowing
+        unit transformations without altering the underlying data source.
+
+        Example:
+            To convert stage readings from centimetres to metres::
+
+                dataset.rescale(1 / 100)
+
+        Args:
+            scale: The multiplicative conversion factor to apply to all
+                observed values. Must be set by the caller according to the
+                desired unit transformation (e.g. ``1/100`` for cm → m,
+                ``1/1000`` for mm → m).
+
+        Returns:
+            A new Dataset instance with rescaled ``value`` column, leaving
+            the original unchanged.
+        """
+        new_data = self.data.copy()
+        new_data["value"] = new_data["value"] * scale
+        return replace(self, data=new_data)
+
     def detrend(self, **kwargs) -> Self:
         """Remove the trend component from the dataset's value series.
 
