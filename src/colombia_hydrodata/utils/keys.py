@@ -57,3 +57,10 @@ aquarius_web_portal_param_names = {
     "DIR VIENTO": "wind_direction",
     "VEL VIENTO": "wind_speed",
 }
+
+time_precision_options = {
+    "A": "YE",
+    "M": "ME",
+    "D": "D",
+    "H": "H",
+}

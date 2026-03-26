@@ -6,6 +6,7 @@ import pandas as pd
 from colombia_hydrodata.attributes import Variable
 from colombia_hydrodata.utils.fetch.aquarius import dataset
 from colombia_hydrodata.utils import tsa
+from colombia_hydrodata.utils.keys import time_precision_options
 
 if TYPE_CHECKING:
     from colombia_hydrodata.station import Station
@@ -103,6 +104,47 @@ class Dataset:
         """
         new_data = self.data.copy()
         new_data["value"] = new_data["value"] * scale
+        return replace(self, data=new_data)
+
+    def interpolate(self, time_precision: str | None = None, **kwargs) -> Self:
+        """Resample the time series to a regular frequency and interpolate missing values.
+
+        Resamples the dataset to a uniform time grid, introducing ``NaN`` at
+        any timestamps where no measurement was recorded, then fills those gaps
+        using :meth:`pandas.DataFrame.interpolate`.
+
+        The target frequency can be supplied explicitly or derived automatically
+        from the variable label. Variable labels follow the convention
+        ``"<PARAM>_<FREQ>"``, where ``<FREQ>`` is a single-character code
+        (``'A'`` annual, ``'M'`` monthly, ``'D'`` daily, ``'H'`` hourly) that
+        is mapped to the corresponding pandas offset alias via
+        ``time_precision_options``.
+
+        Args:
+            time_precision: A pandas offset alias (e.g. ``'D'``, ``'ME'``,
+                ``'H'``) that defines the target resampling frequency. If
+                ``None``, the frequency is inferred from the trailing segment
+                of ``self.variable.label``.
+            **kwargs: Additional keyword arguments forwarded to
+                :meth:`pandas.DataFrame.interpolate` (e.g. ``method='linear'``,
+                ``limit=3``).
+
+        Returns:
+            A new Dataset instance with a regularly spaced ``timestamp`` index
+            and interpolated ``value`` column, leaving the original unchanged.
+
+        Raises:
+            ValueError: If ``time_precision`` is ``None`` and the variable
+                label does not contain a recognised time-precision code.
+        """
+        new_data = self.data.copy()
+        if not time_precision:
+            ts = self.variable.label.split("_")[-1]
+            try:
+                time_precision = time_precision_options[ts]
+            except KeyError:
+                raise ValueError("Variable does not store time precision, please set the value")
+        new_data = new_data.set_index("timestamp").resample(time_precision).asfreq().interpolate(**kwargs).reset_index()
         return replace(self, data=new_data)
 
     def detrend(self, **kwargs) -> Self:
