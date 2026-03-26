@@ -45,7 +45,7 @@ def anomalies_series(value: pd.Series, seasonal_series: pd.Series) -> pd.Series:
 def deconstruction(value: pd.Series, timestamp: pd.Series, **kwargs) -> pd.DataFrame:
     trend, detrended = detrend(value, **kwargs)
     seasonal = seasonal_series(detrended, timestamp)
-    anomalies = anomalies_series(value, seasonal)
+    anomalies = anomalies_series(detrended, seasonal)
     return pd.DataFrame(
         {
             "timestamp": timestamp,
