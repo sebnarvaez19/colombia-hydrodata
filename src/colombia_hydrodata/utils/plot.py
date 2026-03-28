@@ -88,14 +88,24 @@ def year_series(timestamp: pd.Series, value: pd.Series, ax: Axes | None = None, 
     return ax
 
 
+def year_line(timestamp: pd.Series, value: pd.Series, year: int, ax: Axes | None = None, **kwargs) -> Axes:
+    ax = check_ax(ax)
+    df = day_dataframe(timestamp, value)
+    df = df[df["year"] == year]
+    ax.plot(df["doy"], df["value"], **kwargs)
+    return ax
+
+
 if __name__ == "__main__":
     from colombia_hydrodata import Station
 
     station = Station.from_stations_df("29037020")
     dataset = station.fetch("NIVEL@NV_MEDIA_D").sight_level(-0.367).rescale(1 / 100).interpolate().deconstruction()
-    time_series(dataset.data["timestamp"], dataset.data["value"], dataset.data["trend"])
-    histogram(dataset.data["detrended"], orientation="y", bins=50)
-    stem_series(dataset.data["timestamp"], dataset.data["anomalies"])
-    month_series(dataset.data["timestamp"], dataset.data["detrended"])
-    year_series(dataset.data["timestamp"], dataset.data["value"])
+    # time_series(dataset.data["timestamp"], dataset.data["value"], dataset.data["trend"])
+    # histogram(dataset.data["detrended"], orientation="y", bins=50)
+    # stem_series(dataset.data["timestamp"], dataset.data["anomalies"])
+    # month_series(dataset.data["timestamp"], dataset.data["detrended"])
+    ax = year_series(dataset.data["timestamp"], dataset.data["value"])
+    ax = year_line(dataset.data["timestamp"], dataset.data["value"], 2026, ax=ax, color="C2", label="2026")
+    ax.legend()
     plt.show()
