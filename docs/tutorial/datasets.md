@@ -12,12 +12,12 @@ expression.
 ```python
 from colombia_hydrodata import Client
 
-client  = Client()
+client = Client()
 station = client.fetch_station("29037020")
 dataset = station["CAUDAL@HIS_Q_MEDIA_D"]
 ```
 
-`dataset` is a `Dataset` instance — a plain dataclass with three attributes:
+`dataset` is a `Dataset` instance, a plain dataclass with three attributes:
 
 | Attribute          | Type           | Description                          |
 | ------------------ | -------------- | ------------------------------------ |
@@ -32,12 +32,8 @@ print(dataset)
 ```
 
 ```text
-Datset from Station CALAMAR: 29037020, CALAMAR (BOLIVAR), CAUDAL@HIS_Q_MEDIA_D
+Dataset from Station CALAMAR: 29037020, CALAMAR (BOLIVAR), CAUDAL@HIS_Q_MEDIA_D
 ```
-
-!!! note "Typo in the output"
-`Datset` is the literal text produced by `Dataset.__str__` — the missing
-`a` is in the upstream source. The object itself is fully functional.
 
 ---
 
@@ -67,11 +63,11 @@ print(var.id)     # numeric Aquarius dataset ID
 print(var)        # CAUDAL@HIS_Q_MEDIA_D
 ```
 
-| Field       | Description                                                               |
-| ----------- | ------------------------------------------------------------------------- |
-| `var.param` | Parameter family — e.g. `CAUDAL`, `NIVEL`, `PRECIPITACION`                |
-| `var.label` | Series code that identifies aggregation and sensor — e.g. `HIS_Q_MEDIA_D` |
-| `var.id`    | Numeric Aquarius dataset identifier used to fetch the raw data            |
+| Field       | Description                                                           |
+| ----------- | --------------------------------------------------------------------- |
+| `var.param` | Parameter family, for example `CAUDAL`, `NIVEL`, `PRECIPITACION`      |
+| `var.label` | Series code that identifies aggregation and sensor, for example `HIS_Q_MEDIA_D` |
+| `var.id`    | Numeric Aquarius dataset identifier used to fetch the raw data        |
 
 ---
 
@@ -81,14 +77,14 @@ print(var)        # CAUDAL@HIS_Q_MEDIA_D
 
 | Column      | dtype            | Description                                  |
 | ----------- | ---------------- | -------------------------------------------- |
-| `timestamp` | `datetime64[ns]` | Date (and time) of the observation           |
+| `timestamp` | `datetime64[ns]` | Date and time of the observation             |
 | `value`     | `float64`        | Measured value in the variable's native unit |
 
 !!! note "No unit column"
-The unit — m³/s for streamflow, m for gauge level, mm for rainfall, etc.
-— is encoded in the variable key rather than stored in a separate column.
-Use `dataset.variable.param` and `dataset.variable.label` to identify
-what you are working with.
+    The unit, such as m3/s for streamflow, m for gauge level, or mm for
+    rainfall, is encoded in the variable key rather than stored in a separate
+    column. Use `dataset.variable.param` and `dataset.variable.label` to
+    identify what you are working with.
 
 ### Viewing the data
 
@@ -171,7 +167,7 @@ df = dataset.data.set_index("timestamp")
     ```python
     mask = (
         (dataset.data["timestamp"] >= "2020-01-01") &
-        (dataset.data["timestamp"] <  "2021-01-01")
+        (dataset.data["timestamp"] < "2021-01-01")
     )
     year_2020 = dataset.data[mask]
     print(f"{len(year_2020)} daily records in 2020")
@@ -197,7 +193,7 @@ print(f"Removed {len(dataset.data) - len(clean)} missing rows")
 ### Resample to monthly means
 
 ```python
-df      = dataset.data.set_index("timestamp")
+df = dataset.data.set_index("timestamp")
 monthly = df["value"].resample("ME").mean()
 
 print(monthly.tail(6))
@@ -220,18 +216,18 @@ Freq: ME, Name: value, dtype: float64
 df = dataset.data.set_index("timestamp")
 
 print("Highest daily discharge:")
-print(df["value"].idxmax(), df["value"].max(), "m³/s")
+print(df["value"].idxmax(), df["value"].max(), "m3/s")
 
 print("Lowest daily discharge:")
-print(df["value"].idxmin(), df["value"].min(), "m³/s")
+print(df["value"].idxmin(), df["value"].min(), "m3/s")
 ```
 
 ```text
 Highest daily discharge:
-2011-11-08 05:00:00 5821.3 m³/s
+2011-11-08 05:00:00 5821.3 m3/s
 
 Lowest daily discharge:
-2016-03-14 05:00:00 312.4 m³/s
+2016-03-14 05:00:00 312.4 m3/s
 ```
 
 ---
@@ -243,8 +239,8 @@ single DataFrame for side-by-side comparison:
 
 ```python
 ds_mean = station["NIVEL@NV_MEDIA_D"]
-ds_max  = station["NIVEL@NV_MAX_D"]
-ds_min  = station["NIVEL@NV_MIN_D"]
+ds_max = station["NIVEL@NV_MAX_D"]
+ds_min = station["NIVEL@NV_MIN_D"]
 
 gauge = (
     ds_mean.data.set_index("timestamp").rename(columns={"value": "mean"})
@@ -286,13 +282,83 @@ timestamp
     ```
 
 !!! tip "Include station metadata in the filename"
-A small helper keeps exported files self-describing:
+    A small helper keeps exported files self-describing:
 
     ```python
     filename = f"{dataset.station.id}_{dataset.variable}.csv".lower()
-    # → "29037020_caudal@his_q_media_d.csv"
+    # -> "29037020_caudal@his_q_media_d.csv"
     dataset.data.to_csv(filename, index=False)
     ```
+
+---
+
+## Plotting with `dataset.plot`
+
+Every dataset exposes a plotting helper through the `plot` property, so you
+can go straight from a fetched time series to common visual diagnostics.
+
+```python
+from colombia_hydrodata import Client
+import matplotlib.pyplot as plt
+
+client = Client()
+station = client.fetch_station("29037020")
+dataset = (
+    station["NIVEL@NV_MEDIA_D"]
+    .sight_level(-0.367)
+    .rescale(1 / 100)
+    .interpolate()
+    .deconstruction()
+)
+```
+
+### Quick plots
+
+```python
+dataset.plot.time_series()
+dataset.plot.histogram(column_name="detrended", bins=40)
+dataset.plot.monthly_data_series(column_name="detrended")
+plt.show()
+```
+
+### `time_series_analysis()`
+
+Use `time_series_analysis()` to generate a standard four-panel diagnostic view
+of the decomposed series.
+
+```python
+fig, axs = dataset.plot.time_series_analysis(figsize=(10, 6), tight_layout=True)
+plt.show()
+```
+
+You can also request the stacked layout explicitly:
+
+```python
+fig, axs = dataset.plot.time_series_analysis(
+    layout="classic",
+    figsize=(10, 8),
+    tight_layout=True,
+)
+plt.show()
+```
+
+### `daily_series_analysis()`
+
+Use `daily_series_analysis()` to combine the annual cycle envelope with a
+histogram, and optionally highlight specific years.
+
+```python
+fig, axs = dataset.plot.daily_series_analysis(
+    years=[2024, 2025],
+    figsize=(10, 4),
+    tight_layout=True,
+)
+axs[0].legend()
+plt.show()
+```
+
+This is especially useful for comparing a recent year against the historical
+annual range.
 
 ---
 

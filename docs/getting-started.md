@@ -1,14 +1,15 @@
 # Getting Started
 
-This page walks you through installing `colombia-hydrodata` and running your very first query against a real Colombian hydrological station.
+This page walks you through installing `colombia-hydrodata` and running your
+very first query against a real Colombian hydrological station.
 
 ---
 
 ## Requirements
 
 !!! warning "Python version"
-`colombia-hydrodata` requires **Python 3.14 or newer**.  
- Run `python --version` to confirm before installing.
+    `colombia-hydrodata` requires **Python 3.14 or newer**.
+    Run `python --version` to confirm before installing.
 
 | Dependency           | Minimum version | Notes                     |
 | -------------------- | --------------- | ------------------------- |
@@ -52,35 +53,42 @@ Choose your preferred package manager:
     ```
 
 !!! tip "Virtual environments"
-It is strongly recommended to install inside a virtual environment (`python -m venv .venv`) or a Poetry-managed shell (`poetry shell`) to avoid dependency conflicts.
+    It is strongly recommended to install inside a virtual environment
+    (`python -m venv .venv`) or a Poetry-managed shell (`poetry shell`) to
+    avoid dependency conflicts.
 
 ---
 
 ## Your first query
 
-The steps below retrieve station **29037020** (Calamar, Bolívar) and pull its daily mean streamflow time series.
+The steps below retrieve station **29037020** (Calamar, Bolivar) and pull its
+daily mean streamflow time series.
 
-### Step 1 — Import `Client`
+### Step 1 - Import `Client`
 
 ```python
 from colombia_hydrodata import Client
 ```
 
-`Client` is the single entry point to both data sources — the IDEAM station catalog (Datos Abiertos Colombia) and the Aquarius WebPortal. You never need to instantiate the underlying source adapters directly.
+`Client` is the single entry point to both data sources: the IDEAM station
+catalog (Datos Abiertos Colombia) and the Aquarius WebPortal. You never need
+to instantiate the underlying source adapters directly.
 
 ---
 
-### Step 2 — Create a client
+### Step 2 - Create a client
 
 ```python
 client = Client()
 ```
 
-`Client()` takes no arguments. On creation it fetches the full CNE station catalog from datos.gov.co and stores it as a `GeoDataFrame` in `client.catalog`. Both endpoints are fully public — no API key is required.
+`Client()` takes no arguments. On creation it fetches the full CNE station
+catalog from datos.gov.co and stores it as a `GeoDataFrame` in
+`client.catalog`. Both endpoints are fully public, so no API key is required.
 
 ---
 
-### Step 3 — Fetch a station
+### Step 3 - Fetch a station
 
 ```python
 station = client.fetch_station("29037020")
@@ -89,7 +97,8 @@ print(station.department)
 print(station.location)
 ```
 
-`fetch_station` looks up the station by its official IDEAM eight-digit code and returns a frozen `Station` dataclass:
+`fetch_station` looks up the station by its official IDEAM eight-digit code
+and returns a frozen `Station` dataclass:
 
 ```text
 CALAMAR
@@ -98,24 +107,25 @@ Location: altitude=8.00 [-74.915; 10.243]
 ```
 
 !!! info "Available attributes"
-| Attribute | Type | Description |
-|---|---|---|
-| `station.id` | `str` | Official IDEAM station code |
-| `station.name` | `str` | Human-readable station name |
-| `station.category` | `str` | Station type (e.g. `"Limnigráfica"`) |
-| `station.status` | `str` | Operational status (`"Activa"` / `"Suspendida"`) |
-| `station.department` | `str` | Colombian department |
-| `station.municipality` | `str` | Municipality |
-| `station.owner` | `str` | Operating entity |
-| `station.location` | `Location` | Altitude, longitude, latitude |
-| `station.hydrographic` | `Hydrographic` | Hydrographic area, zone, and subzone |
-| `station.variables` | `dict[str, Variable]` | All available time-series variables |
+    | Attribute | Type | Description |
+    |---|---|---|
+    | `station.id` | `str` | Official IDEAM station code |
+    | `station.name` | `str` | Human-readable station name |
+    | `station.category` | `str` | Station type (e.g. `"Limnigrafica"`) |
+    | `station.status` | `str` | Operational status (`"Activa"` / `"Suspendida"`) |
+    | `station.department` | `str` | Colombian department |
+    | `station.municipality` | `str` | Municipality |
+    | `station.owner` | `str` | Operating entity |
+    | `station.location` | `Location` | Altitude, longitude, latitude |
+    | `station.hydrographic` | `Hydrographic` | Hydrographic area, zone, and subzone |
+    | `station.variables` | `dict[str, Variable]` | All available time-series variables |
 
 ---
 
-### Step 4 — Fetch a dataset
+### Step 4 - Fetch a dataset
 
-Variable keys follow the pattern `PARAM@LABEL`. For daily mean streamflow the key is `CAUDAL@HIS_Q_MEDIA_D`:
+Variable keys follow the pattern `PARAM@LABEL`. For daily mean streamflow the
+key is `CAUDAL@HIS_Q_MEDIA_D`:
 
 ```python
 dataset = station["CAUDAL@HIS_Q_MEDIA_D"]
@@ -123,11 +133,12 @@ dataset = station["CAUDAL@HIS_Q_MEDIA_D"]
 dataset = station.fetch("CAUDAL@HIS_Q_MEDIA_D")
 ```
 
-This queries the Aquarius WebPortal and returns a `Dataset` object backed by a **pandas `DataFrame`**.
+This queries the Aquarius WebPortal and returns a `Dataset` object backed by a
+`pandas.DataFrame`.
 
 ---
 
-### Step 5 — Inspect the data
+### Step 5 - Inspect the data
 
 ```python
 print(dataset.data.head())
@@ -144,14 +155,14 @@ print(dataset.data.head())
 4  2000-01-05 05:00:00  1066.60
 ```
 
-You can immediately use all familiar pandas operations:
+You can immediately use familiar pandas operations:
 
 ```python
 # Monthly averages
 monthly = dataset.data.set_index("timestamp")["value"].resample("ME").mean()
 
-# Plot
-dataset.data.set_index("timestamp")["value"].plot(title=station.name)
+# Plot with the built-in helper
+dataset.plot.time_series(title=station.name)
 ```
 
 ---
@@ -163,21 +174,17 @@ Here is the complete example as a single script:
 ```python
 from colombia_hydrodata import Client
 
-# 1. Create client (fetches CNE catalog on first run)
 client = Client()
 
-# 2. Fetch station metadata and available variables
 station = client.fetch_station("29037020")
 print(station.name, station.department)
 print(list(station.variables.keys()))
 
-# 3. Fetch a time-series dataset
 dataset = station["CAUDAL@HIS_Q_MEDIA_D"]
 
-# 4. Inspect the data
 print(dataset.data.head())
 print(f"Total records : {len(dataset.data)}")
-print(f"Mean discharge: {dataset.data['value'].mean():.1f} m³/s")
+print(f"Mean discharge: {dataset.data['value'].mean():.1f} m3/s")
 ```
 
 ---
@@ -185,7 +192,8 @@ print(f"Mean discharge: {dataset.data['value'].mean():.1f} m³/s")
 ## What's next
 
 !!! success "You're ready!"
-You have successfully installed the library and pulled real hydrological data from Colombia.
+    You have successfully installed the library and pulled real hydrological
+    data from Colombia.
 
 <div class="grid cards" markdown>
 
@@ -193,7 +201,8 @@ You have successfully installed the library and pulled real hydrological data fr
 
   ***
 
-  A hands-on walkthrough: discover stations with `Filters`, compare multiple sites, and export data to CSV and Excel.
+  A hands-on walkthrough: discover stations with `Filters`, work with
+  datasets, and generate built-in plots.
 
   [:octicons-arrow-right-24: Tutorial](tutorial/client.md)
 
@@ -201,7 +210,9 @@ You have successfully installed the library and pulled real hydrological data fr
 
   ***
 
-  Detailed documentation for every public class: `Client`, `Station`, `Dataset`, `Filters`, `Location`, `Hydrographic`, and `Variable`.
+  Detailed documentation for every public class: `Client`, `Station`,
+  `Dataset`, `DatasetPlot`, `Filters`, `Location`, `Hydrographic`, and
+  `Variable`.
 
   [:octicons-arrow-right-24: Reference](reference/client.md)
 

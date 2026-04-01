@@ -6,9 +6,14 @@ hide:
 
 # colombia-hydrodata
 
-**Fetch hydrological and meteorological station data from Colombia — in a single line of Python.**
+**Fetch hydrological and meteorological station data from Colombia in a single line of Python.**
 
-`colombia-hydrodata` is a Python library that provides a clean, unified interface to two official Colombian data sources: the [IDEAM station catalog](https://www.datos.gov.co/) (Datos Abiertos Colombia) and the [Aquarius WebPortal](https://aquarius.ideam.gov.co/). Query stations, pull time-series datasets, and start analysing water and climate data without wrestling with raw APIs.
+`colombia-hydrodata` is a Python library that provides a clean, unified
+interface to two official Colombian data sources: the
+[IDEAM station catalog](https://www.datos.gov.co/) (Datos Abiertos Colombia)
+and the [Aquarius WebPortal](https://aquarius.ideam.gov.co/). Query stations,
+pull time-series datasets, and start analyzing water and climate data without
+wrestling with raw APIs.
 
 ---
 
@@ -47,6 +52,9 @@ print(dataset.data.head())
 # 0  2000-01-01 05:00:00  1240.80
 # 1  2000-01-02 05:00:00  1179.00
 # 2  2000-01-03 05:00:00  1143.40
+
+# Built-in plotting helpers are available on dataset.plot
+dataset.plot.time_series(title=station.name)
 ```
 
 ---
@@ -63,11 +71,21 @@ print(dataset.data.head())
 
   [:octicons-arrow-right-24: Getting Started](getting-started.md)
 
+- :material-chart-line: **Plotting Tutorial**
+
+  ***
+
+  Learn how to use `dataset.plot`, `time_series_analysis()`, and
+  `daily_series_analysis()`.
+
+  [:octicons-arrow-right-24: Plotting](tutorial/plotting.md)
+
 - :material-book-open-page-variant-outline: **API Reference**
 
   ***
 
-  Full documentation for `Client`, `Station`, `Dataset`, `Filters`, `Location`, `Hydrographic`, and `Variable`.
+  Full documentation for `Client`, `Station`, `Dataset`, `DatasetPlot`,
+  `Filters`, `Location`, `Hydrographic`, and `Variable`.
 
   [:octicons-arrow-right-24: Reference](reference/client.md)
 

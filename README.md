@@ -3,30 +3,32 @@
 [![PyPI](https://img.shields.io/pypi/v/colombia-hydrodata)](https://pypi.org/project/colombia-hydrodata/)
 [![Docs](https://img.shields.io/badge/docs-online-teal)](https://sebnarvaez19.github.io/colombia-hydrodata/)
 
-Python client to access **hydrological and meteorological data from Colombia**.
+Python client for accessing hydrological and meteorological data from Colombia.
 
-The library integrates multiple official data sources and exposes them through a simple and Pythonic API.
+The library integrates official IDEAM data sources and exposes them through a
+clean, Pythonic API for station discovery, dataset retrieval, and built-in
+time-series plotting.
 
 Data is fetched from:
 
-- [Catálogo Nacional de Estaciones – Datos Abiertos Colombia](https://datos.gov.co/Ambiente-y-Desarrollo-Sostenible/Cat-logo-Nacional-de-Estaciones-del-IDEAM/hp9r-jxuu)
-- [AQUARIUS WebPortal – IDEAM](http://aquariuswebportal.ideam.gov.co/)
+- [Catalogo Nacional de Estaciones - Datos Abiertos Colombia](https://datos.gov.co/Ambiente-y-Desarrollo-Sostenible/Cat-logo-Nacional-de-Estaciones-del-IDEAM/hp9r-jxuu)
+- [AQUARIUS WebPortal - IDEAM](http://aquariuswebportal.ideam.gov.co/)
 
 ---
 
 ## Architecture
 
-The library follows a **client → station → dataset** hierarchy.
+The library follows a `client -> station -> dataset` hierarchy.
 
-```
+```text
 Client
   └── Station
         └── Dataset
 ```
 
-- **`Client`** loads the station catalog and exposes methods to query and filter stations.
-- **`Station`** represents an IDEAM monitoring station with its full metadata and available variables.
-- **`Dataset`** represents a time series retrieved from the Aquarius WebPortal.
+- `Client` loads the station catalog and exposes methods to query and filter stations.
+- `Station` represents an IDEAM monitoring station with its full metadata and available variables.
+- `Dataset` represents a time series retrieved from the Aquarius WebPortal.
 
 ---
 
@@ -47,27 +49,69 @@ poetry add colombia-hydrodata
 ## Quick Start
 
 ```python
-from colombia_hydrodata.client import Client
+from colombia_hydrodata import Client
 
 client = Client()
 
 # Fetch a single station
 station = client.fetch_station("29037020")
-print(station)
+print(station.name)
 
 # Fetch its discharge time series
 dataset = station["CAUDAL@HIS_Q_MEDIA_D"]
-print(dataset.data)
+print(dataset.data.head())
+```
+
+---
+
+## Plotting
+
+Datasets expose built-in plotting helpers through the `plot` property.
+
+```python
+import matplotlib.pyplot as plt
+
+dataset.plot.time_series(title=station.name)
+plt.show()
+```
+
+For decomposed series, you can generate the built-in analysis layouts:
+
+```python
+dataset = (
+    station["NIVEL@NV_MEDIA_D"]
+    .sight_level(-0.367)
+    .rescale(1 / 100)
+    .interpolate()
+    .deconstruction()
+)
+
+fig, axs = dataset.plot.time_series_analysis(figsize=(10, 6), tight_layout=True)
+plt.show()
+```
+
+You can also inspect the annual envelope and highlight specific years:
+
+```python
+fig, axs = dataset.plot.daily_series_analysis(
+    years=[2024, 2025],
+    figsize=(10, 4),
+    tight_layout=True,
+)
+axs[0].legend()
+plt.show()
 ```
 
 ---
 
 ## Client
 
-`Client` is the main entry point. On initialization it downloads the full IDEAM station catalog from Datos Abiertos Colombia and stores it internally as a **GeoDataFrame**.
+`Client` is the main entry point. On initialization it downloads the full
+IDEAM station catalog from Datos Abiertos Colombia and stores it internally as
+a `GeoDataFrame`.
 
 ```python
-from colombia_hydrodata.client import Client
+from colombia_hydrodata import Client
 
 client = Client()
 ```
@@ -103,7 +147,7 @@ stations = client.fetch_bbox(
     xmin=-75.0,
     ymin=9.5,
     xmax=-74.0,
-    ymax=10.5
+    ymax=10.5,
 )
 ```
 
@@ -116,9 +160,10 @@ region = Polygon(...)
 stations = client.fetch_region(region)
 ```
 
-### Catalog only (no Station objects)
+### Catalog only
 
-To get a lightweight GeoDataFrame of station metadata without instantiating `Station` objects:
+To get a lightweight GeoDataFrame of station metadata without instantiating
+`Station` objects:
 
 ```python
 gdf = client.stations_in_region(region)
@@ -129,16 +174,17 @@ gdf = client.stations_in_list(["29037020", "29037021"])
 
 ## Filtering Stations
 
-Use the `Filters` dataclass to narrow results by metadata fields. All filters are combined with logical **AND** and are optional.
+Use the `Filters` dataclass to narrow results by metadata fields. All filters
+are optional and combined with logical `AND`.
 
 ```python
-from colombia_hydrodata.client import Client
+from colombia_hydrodata import Client
 from colombia_hydrodata.filters import Filters
 
 client = Client()
 
 filters = Filters(
-    category="Limnimétrica",
+    category="Limnimetrica",
     department="Bolivar",
     status="Activa",
 )
@@ -163,71 +209,18 @@ Available filter fields:
 
 ## Station
 
-A `Station` is a **frozen dataclass** (read-only) with full metadata about an IDEAM monitoring station.
+A `Station` is a frozen dataclass with full metadata about an IDEAM monitoring
+station.
 
 ```python
 station = client.fetch_station("29037020")
 print(station)
 ```
 
-Example output:
-
-```
-Station CALAMAR: 29037020
-  Calamar (Bolivar)
-  Info: Activa Limnimétrica (Convencional)
-  Time: 1940-07-15 00:00:00 - ongoing
-  Owner: INSTITUTO DE HIDROLOGÍA METEOROLOGÍA Y ESTUDIOS AMBIENTALES
-  Location: altitude=8.00 [-74.915; 10.243]
-  Hydrographic: area=Magdalena Cauca zone=Bajo Magdalena subzone=Canal del Dique margen izquierda
-  Variables:
-    CAUDAL:
-       HIS_Q_MEDIA_D, HIS_Q_MX_M, HIS_Q_MEDIA_M, Q_MN_D, Q_MN_M, Q_MX_D, Q_MX_M, Q_MN_A, Q_MX_A, Q_MEDIA_A, CAUDAL_H
-    NIVEL:
-       NVLM_CON, HIS_NV_MEDIA_D, HIS_NV_MN_M, HIS_NV_MX_M, NIVEL_H, NV_MEDIA_D, NV_MN_D, NV_MN_M, NV_MX_D, NV_MX_M, NV_MN_A, NV_MX_A, NV_MEDIA_A, HIS_NIVEL_H
-    TM:
-       HIS_TR_QS_M, HIS_TR_QS_TT_M, HIS_TR_QS_MX_M, HIS_TR_KT/D_QS_D
-```
-
-### Station attributes
-
-| Attribute           | Description                          |
-| ------------------- | ------------------------------------ |
-| `id`                | Station code                         |
-| `name`              | Station name                         |
-| `category`          | Category (e.g. Limnimétrica)         |
-| `technology`        | Technology (e.g. Convencional)       |
-| `status`            | Operational status                   |
-| `department`        | Department                           |
-| `municipality`      | Municipality                         |
-| `installation_date` | Date the station was installed       |
-| `suspension_date`   | Date suspended (`None` if active)    |
-| `owner`             | Owning institution                   |
-| `location`          | `Location` (altitude, lon, lat)      |
-| `hydrographic`      | `Hydrographic` (area, zone, subzone) |
-| `variables`         | Dict of available `Variable` objects |
-
-### Checking variable availability
-
-```python
-"CAUDAL@HIS_Q_MEDIA_D" in station  # True / False
-```
-
----
-
-## Fetching Data
-
-Variables are identified by a key in the format `PARAM@LABEL`, matching the variables listed when you print a station.
-
-### Using `fetch()`
+It also provides the dataset access points:
 
 ```python
 dataset = station.fetch("CAUDAL@HIS_Q_MEDIA_D")
-```
-
-### Using `[]` (shorthand)
-
-```python
 dataset = station["CAUDAL@HIS_Q_MEDIA_D"]
 ```
 
@@ -237,54 +230,43 @@ Both return a `Dataset` object.
 
 ## Dataset
 
-A `Dataset` represents a **time series associated with a station and a variable**.
+A `Dataset` represents a time series associated with a station and a variable.
 
 ```python
 dataset = station["NIVEL@NV_MEDIA_D"]
 
-print(dataset.station)    # Station object
-print(dataset.variable)   # Variable object (param, label, id)
-print(dataset.data)       # pandas DataFrame
+print(dataset.station)
+print(dataset.variable)
+print(dataset.data.head())
 ```
 
-The `data` DataFrame has two columns:
+The `data` DataFrame has two core columns:
 
 | Column      | Description         |
 | ----------- | ------------------- |
-| `timestamp` | datetime            |
-| `value`     | numeric measurement |
+| `timestamp` | Datetime            |
+| `value`     | Numeric measurement |
 
-Example:
+Datasets also expose transformation helpers such as:
 
-```
-   timestamp   value
-0  2025-01-01   2.31
-1  2025-01-02   2.28
-2  2025-01-03   2.35
+- `sight_level()`
+- `rescale()`
+- `interpolate()`
+- `detrend()`
+- `seasonal()`
+- `anomalies()`
+- `deconstruction()`
+
+And plotting helpers through:
+
+```python
+dataset.plot
 ```
 
 ---
 
-## Data Sources
+## Documentation
 
-### Station Catalog
+Full documentation is available at:
 
-Fetched from the **Socrata SODA API** via Datos Abiertos Colombia:
-
-```
-https://datos.gov.co/resource/hp9r-jxuu.json
-```
-
-### Time Series
-
-Fetched from the **IDEAM Aquarius WebPortal**:
-
-```
-http://aquariuswebportal.ideam.gov.co/
-```
-
-Each variable key (`PARAM@LABEL`) corresponds to a unique Aquarius dataset ID used internally to retrieve the time series.
-
----
-
-_README made with [GitHub Copilot](https://github.com/features/copilot)._
+https://sebnarvaez19.github.io/colombia-hydrodata/

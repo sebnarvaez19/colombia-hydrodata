@@ -68,6 +68,7 @@ nav:
     - Client: tutorial/client.md
     - Stations: tutorial/stations.md
     - Datasets: tutorial/datasets.md
+    - Plotting: tutorial/plotting.md
     - Spatial Queries: tutorial/spatial.md
   - How-to Guides:
     - Filter Stations: how-to/filter-stations.md
@@ -76,6 +77,7 @@ nav:
     - Client: reference/client.md
     - Station: reference/station.md
     - Dataset: reference/dataset.md
+    - Plotting: reference/plot.md
     - Filters: reference/filters.md
     - Attributes: reference/attributes.md
   - Explanation:
