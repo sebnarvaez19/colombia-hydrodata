@@ -58,6 +58,7 @@ def month_series(
     month = timestamp.dt.month
     ax = time_series(month, value, ax=ax, **kwargs)
     ax.set_xticks(ticks=range(1, 13), labels=[m[:month_size] for m in months], rotation=month_rotation)
+    ax.set(xlabel="Timestamp")
     return ax
 
 
@@ -85,7 +86,7 @@ def year_series(timestamp: pd.Series, value: pd.Series, ax: Axes | None = None, 
 
     ax.set_xticks(ticks=[mdl - 15 for mdl in months_doy_limits], labels=months)
     ax.set(**kwargs)
-    ax.set(xlim=[1, 365])
+    ax.set(xlim=[1, 365], xlabel="Timestamp")
     return ax
 
 
