@@ -1,8 +1,12 @@
 from typing import TYPE_CHECKING, Literal, Sequence
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+from matplotlib.gridspec import GridSpec
+from numpy.typing import NDArray
 
 from colombia_hydrodata.utils import plot
 
@@ -18,7 +22,7 @@ class DatasetPlot:
         return plot.time_series(
             timestamp=pd.Series(self.dataset.data["timestamp"]),
             value=pd.Series(self.dataset.data[column_name]),
-            trend=pd.Series(self.dataset.data["trend"]) if "trend" in self.dataset.data.columns else None,
+            trend=pd.Series(self.dataset.data["trend"]) if "trend" in self.dataset.data.columns and column_name == "value" else None,
             **kwargs,
         )
 
@@ -46,22 +50,64 @@ class DatasetPlot:
                 )
         return ax
 
-    def seasonal_data_series(self, column_name: str = "value", time_resolution: Literal["month", "year"] = "month", **kwargs) -> Axes:
-        match time_resolution:
-            case "month":
-                return plot.month_series(
-                    timestamp=pd.Series(self.dataset.data["timestamp"]),
-                    value=pd.Series(self.dataset.data[column_name]),
-                    **kwargs,
-                )
-            case "year":
-                return plot.year_series(
-                    timestamp=pd.Series(self.dataset.data["timestamp"]),
-                    value=pd.Series(self.dataset.data[column_name]),
-                    **kwargs,
-                )
+    def tsa_classic(self, **kwargs) -> tuple[Figure, NDArray[np.object_]]:
+        fig, axs = plt.subplots(4, 1, **kwargs)
+        axs = axs.reshape(-1)
+
+        axs[0] = self.time_series(ax=axs[0])
+        axs[1] = self.time_series(column_name="detrended", ax=axs[1])
+        axs[2] = self.monthly_data_series(column_name="detrended", ax=axs[2])
+        axs[3] = self.stem_series(column_name="anomalies", ax=axs[3])
+
+        for ax in axs:
+            ax.set_xlabel("")
+        fig.align_labels()
+        fig.supxlabel("Timestamp")
+
+        return fig, axs
+
+    def tsa_new(self, **kwargs) -> tuple[Figure, NDArray[np.object_]]:
+        fig = plt.figure(**kwargs)
+        gs = GridSpec(2, 2, width_ratios=[3, 1])
+
+        ax0 = self.time_series(ax=fig.add_subplot(gs[0, 0]))
+        ax0.set(ylabel="Data", xlabel="Timestamp")
+        ax1 = self.histogram(column_name="detrended", ax=fig.add_subplot(gs[0, 1]))
+        ax1.set(ylabel="Frequency", xlabel="Variability")
+        ax2 = self.stem_series(column_name="anomalies", ax=fig.add_subplot(gs[1, 0]))
+        ax2.set(ylabel="Anomalies", xlabel="Timestamp")
+        ax3 = self.monthly_data_series(column_name="detrended", ax=fig.add_subplot(gs[1, 1]))
+        ax3.set(ylabel="Seasonal", xlabel="Month")
+
+        fig.align_labels()
+
+        return fig, np.array([ax0, ax1, ax2, ax3])
+
+    def time_series_analysis(self, layout: Literal["classic", "new"] = "new", **kwargs) -> tuple[Figure, NDArray[np.object_]]:
+        match layout:
+            case "classic":
+                return self.tsa_classic(**kwargs)
+            case "new":
+                return self.tsa_new(**kwargs)
             case _:
-                raise ValueError("time_resolution must be either 'month' or 'year'")
+                raise ValueError("Layaout must be 'classic' or 'new'.")
+
+    def daily_series_analysis(
+        self,
+        column_name: str = "value",
+        years: Sequence[int] | None = None,
+        **kwargs,
+    ) -> tuple[Figure, NDArray[np.object_]]:
+        fig = plt.figure(**kwargs)
+        gs = GridSpec(1, 2, width_ratios=[3, 1])
+
+        ax0 = self.annual_data_series(column_name, years=years, ax=fig.add_subplot(gs[0, 0]))
+        ax0.set(ylabel="Data")
+        ax1 = self.histogram(column_name, orientation="y", ax=fig.add_subplot(gs[0, 1]))
+        ax1.set(ylabel="", xlabel="Frequency")
+        ax1.sharey(ax0)
+
+        return fig, np.array([ax0, ax1])
 
 
 if __name__ == "__main__":
@@ -71,23 +117,13 @@ if __name__ == "__main__":
     dataset = station.fetch("NIVEL@NV_MEDIA_D").sight_level(-0.367).rescale(1 / 100).interpolate().deconstruction()
     ds_plot = DatasetPlot(dataset)
 
-    def test_tsa_basic_plots():
-        _, axs = plt.subplots(2, 2, figsize=(10, 8), tight_layout=True)
-        axs = axs.reshape(-1)
-
-        ds_plot.time_series(ax=axs[0])
-        ds_plot.histogram(column_name="detrended", bins=50, ax=axs[1])
-        ds_plot.stem_series(column_name="anomalies", ax=axs[2])
-        ds_plot.seasonal_data_series(column_name="detrended", time_resolution="month", ax=axs[3])
+    def test_tsa():
+        ds_plot.time_series_analysis(figsize=(10, 6), tight_layout=True)
 
     def test_tsa_stripes():
-        _, axs = plt.subplots(2, 2, figsize=(10, 8), tight_layout=True)
-        axs = axs.reshape(-1)
+        _, axs = ds_plot.daily_series_analysis(years=[2026, 2011], figsize=(10, 4), tight_layout=True)
+        axs[0].legend()
 
-        ds_plot.annual_data_series(column_name="value", years=[2026, 2024, 2011], ax=axs[0])
-        ds_plot.histogram(column_name="value", bins=50, orientation="y", ax=axs[1])
-        ds_plot.annual_data_series(column_name="detrended", ax=axs[2])
-        ds_plot.histogram(column_name="detrended", bins=50, orientation="y", ax=axs[3])
-
+    test_tsa()
     test_tsa_stripes()
     plt.show()
