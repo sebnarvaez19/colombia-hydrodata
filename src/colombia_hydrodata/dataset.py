@@ -4,8 +4,9 @@ from typing import TYPE_CHECKING, Self
 import pandas as pd
 
 from colombia_hydrodata.attributes import Variable
-from colombia_hydrodata.utils.fetch.aquarius import dataset
+from colombia_hydrodata.plot import DatasetPlot
 from colombia_hydrodata.utils import tsa
+from colombia_hydrodata.utils.fetch.aquarius import dataset
 from colombia_hydrodata.utils.keys import time_precision_options
 
 if TYPE_CHECKING:
@@ -226,3 +227,17 @@ class Dataset:
         """
         new_data = tsa.deconstruction(self.data["value"].copy(), self.data["timestamp"].copy(), **kwargs)
         return replace(self, data=new_data)
+
+    @property
+    def plot(self) -> DatasetPlot:
+        """Return a plotting helper bound to this dataset.
+
+        Provides convenient access to the plotting API via
+        ``dataset.plot.<method>()`` without storing plotting logic directly on
+        the dataset class itself.
+
+        Returns:
+            A :class:`colombia_hydrodata.plot.DatasetPlot` instance linked to
+            the current dataset.
+        """
+        return DatasetPlot(dataset=self)

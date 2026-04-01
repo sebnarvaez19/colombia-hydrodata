@@ -139,3 +139,21 @@ def deconstruction(value: pd.Series, timestamp: pd.Series, **kwargs) -> pd.DataF
             "anomalies": anomalies,
         }
     )
+
+
+def day_dataframe(timestamp: pd.Series, value: pd.Series) -> pd.DataFrame:
+    df = pd.DataFrame({"timestamp": timestamp, "value": value})
+    df["year"] = df["timestamp"].dt.year
+    df["month"] = df["timestamp"].dt.month
+    df["day"] = df["timestamp"].dt.day
+    is_feb_29 = (df["month"] == 2) & (df["day"] == 29)
+    df = df.loc[~is_feb_29]
+    df["doy"] = df.groupby("year").cumcount() + 1
+    return df
+
+
+def day_quantiles(df: pd.DataFrame) -> pd.DataFrame:
+    qs = [0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 1.0]
+    df = df.copy()
+    df = pd.DataFrame({f"value_{q}": df[["doy", "value"]].groupby("doy").quantile(q)["value"] for q in qs}).reset_index()
+    return df
