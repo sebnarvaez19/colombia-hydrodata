@@ -16,9 +16,28 @@ if TYPE_CHECKING:
 
 class DatasetPlot:
     def __init__(self, dataset: "Dataset") -> None:
+        """Create a plotting helper bound to a dataset.
+
+        Args:
+            dataset: The dataset whose time-series data will be visualised.
+        """
         self.dataset = dataset
 
     def time_series(self, column_name: str = "value", **kwargs) -> Axes:
+        """Plot a timestamp-versus-value line series for the dataset.
+
+        Uses the dataset ``timestamp`` column on the x-axis and the selected
+        data column on the y-axis. When plotting the default ``value`` column,
+        the ``trend`` series is included as an overlay if it exists.
+
+        Args:
+            column_name: Name of the dataset column to plot on the y-axis.
+            **kwargs: Additional keyword arguments forwarded to
+                :func:`colombia_hydrodata.utils.plot.time_series`.
+
+        Returns:
+            The Matplotlib axes containing the plot.
+        """
         return plot.time_series(
             timestamp=pd.Series(self.dataset.data["timestamp"]),
             value=pd.Series(self.dataset.data[column_name]),
@@ -27,19 +46,64 @@ class DatasetPlot:
         )
 
     def stem_series(self, column_name: str = "value", **kwargs) -> Axes:
+        """Plot a stem chart for a dataset column against time.
+
+        Args:
+            column_name: Name of the dataset column to plot.
+            **kwargs: Additional keyword arguments forwarded to
+                :func:`colombia_hydrodata.utils.plot.stem_series`.
+
+        Returns:
+            The Matplotlib axes containing the plot.
+        """
         return plot.stem_series(
             timestamp=pd.Series(self.dataset.data["timestamp"]), value=pd.Series(self.dataset.data[column_name]), **kwargs
         )
 
     def histogram(self, column_name: str = "value", **kwargs) -> Axes:
+        """Plot a histogram for one dataset column.
+
+        Args:
+            column_name: Name of the dataset column to summarise.
+            **kwargs: Additional keyword arguments forwarded to
+                :func:`colombia_hydrodata.utils.plot.histogram`.
+
+        Returns:
+            The Matplotlib axes containing the histogram.
+        """
         return plot.histogram(value=pd.Series(self.dataset.data[column_name]), **kwargs)
 
     def monthly_data_series(self, column_name: str = "value", **kwargs) -> Axes:
+        """Plot the selected series grouped by calendar month.
+
+        Args:
+            column_name: Name of the dataset column to plot.
+            **kwargs: Additional keyword arguments forwarded to
+                :func:`colombia_hydrodata.utils.plot.month_series`.
+
+        Returns:
+            The Matplotlib axes containing the monthly plot.
+        """
         return plot.month_series(
             timestamp=pd.Series(self.dataset.data["timestamp"]), value=pd.Series(self.dataset.data[column_name]), **kwargs
         )
 
     def annual_data_series(self, column_name: str = "value", years: Sequence[int] | None = None, **kwargs) -> Axes:
+        """Plot the annual cycle envelope and optional individual years.
+
+        Draws the day-of-year quantile bands for the selected column and, when
+        requested, overlays one or more specific years as individual lines.
+
+        Args:
+            column_name: Name of the dataset column to plot.
+            years: Optional sequence of calendar years to overlay on top of
+                the annual envelope.
+            **kwargs: Additional keyword arguments forwarded to
+                :func:`colombia_hydrodata.utils.plot.year_series`.
+
+        Returns:
+            The Matplotlib axes containing the annual plot.
+        """
         ax = plot.year_series(
             timestamp=pd.Series(self.dataset.data["timestamp"]), value=pd.Series(self.dataset.data[column_name]), **kwargs
         )
@@ -51,6 +115,18 @@ class DatasetPlot:
         return ax
 
     def tsa_classic(self, **kwargs) -> tuple[Figure, NDArray[np.object_]]:
+        """Create the classic four-panel time-series analysis figure.
+
+        The panels show the raw series, detrended series, monthly seasonal
+        pattern, and anomalies in a vertical layout.
+
+        Args:
+            **kwargs: Additional keyword arguments forwarded to
+                :func:`matplotlib.pyplot.subplots`.
+
+        Returns:
+            A tuple containing the Matplotlib figure and the array of axes.
+        """
         fig, axs = plt.subplots(4, 1, **kwargs)
         axs = axs.reshape(-1)
 
@@ -67,6 +143,18 @@ class DatasetPlot:
         return fig, axs
 
     def tsa_new(self, **kwargs) -> tuple[Figure, NDArray[np.object_]]:
+        """Create the compact time-series analysis dashboard.
+
+        The layout combines the raw series, detrended histogram, anomalies,
+        and monthly seasonal pattern in a 2x2 grid.
+
+        Args:
+            **kwargs: Additional keyword arguments forwarded to
+                :func:`matplotlib.pyplot.figure`.
+
+        Returns:
+            A tuple containing the Matplotlib figure and the array of axes.
+        """
         fig = plt.figure(**kwargs)
         gs = GridSpec(2, 2, width_ratios=[3, 1])
 
@@ -84,6 +172,20 @@ class DatasetPlot:
         return fig, np.array([ax0, ax1, ax2, ax3])
 
     def time_series_analysis(self, layout: Literal["classic", "new"] = "new", **kwargs) -> tuple[Figure, NDArray[np.object_]]:
+        """Create a standard time-series analysis figure for the dataset.
+
+        Args:
+            layout: Figure layout to generate. Use ``"classic"`` for the
+                stacked four-panel version or ``"new"`` for the compact grid.
+            **kwargs: Additional keyword arguments forwarded to the selected
+                layout builder.
+
+        Returns:
+            A tuple containing the Matplotlib figure and the array of axes.
+
+        Raises:
+            ValueError: If ``layout`` is not one of the supported options.
+        """
         match layout:
             case "classic":
                 return self.tsa_classic(**kwargs)
@@ -98,6 +200,21 @@ class DatasetPlot:
         years: Sequence[int] | None = None,
         **kwargs,
     ) -> tuple[Figure, NDArray[np.object_]]:
+        """Create a two-panel annual-cycle analysis figure.
+
+        The left panel shows the annual envelope with optional highlighted
+        years, and the right panel shows the corresponding value histogram.
+
+        Args:
+            column_name: Name of the dataset column to analyse.
+            years: Optional sequence of calendar years to overlay on the
+                annual envelope.
+            **kwargs: Additional keyword arguments forwarded to
+                :func:`matplotlib.pyplot.figure`.
+
+        Returns:
+            A tuple containing the Matplotlib figure and the array of axes.
+        """
         fig = plt.figure(**kwargs)
         gs = GridSpec(1, 2, width_ratios=[3, 1])
 
