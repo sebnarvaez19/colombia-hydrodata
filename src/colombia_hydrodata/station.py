@@ -101,7 +101,7 @@ class Station:
         """
         key = key.upper()
         if not self.variables:
-            raise TypeError("There are not variable for this station.")
+            raise TypeError("There are no variables for this station.")
         try:
             return self.variables[key]
         except KeyError:

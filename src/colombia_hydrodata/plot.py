@@ -192,7 +192,7 @@ class DatasetPlot:
             case "new":
                 return self.tsa_new(**kwargs)
             case _:
-                raise ValueError("Layaout must be 'classic' or 'new'.")
+                raise ValueError("Layout must be 'classic' or 'new'.")
 
     def daily_series_analysis(
         self,

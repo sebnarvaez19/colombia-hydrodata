@@ -49,7 +49,7 @@ class Dataset:
             municipality, department, and variable description.
         """
         parts = [
-            f"Datset from Station {self.station.name}: {self.station.id}",
+            f"Dataset from Station {self.station.name}: {self.station.id}",
             f"{self.station.municipality} ({self.station.department})",
             f"{self.variable}",
         ]
