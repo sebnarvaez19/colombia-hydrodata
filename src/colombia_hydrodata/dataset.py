@@ -1,5 +1,5 @@
 from dataclasses import dataclass, replace
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Any, Self
 
 import pandas as pd
 
@@ -107,7 +107,7 @@ class Dataset:
         new_data["value"] = new_data["value"] * scale
         return replace(self, data=new_data)
 
-    def interpolate(self, time_precision: str | None = None, **kwargs) -> Self:
+    def interpolate(self, time_precision: str | None = None, **kwargs: Any) -> Self:
         """Resample the time series to a regular frequency and interpolate missing values.
 
         Resamples the dataset to a uniform time grid, introducing ``NaN`` at
@@ -148,7 +148,7 @@ class Dataset:
         new_data = new_data.set_index("timestamp").resample(time_precision).asfreq().interpolate(**kwargs).reset_index()
         return replace(self, data=new_data)
 
-    def detrend(self, **kwargs) -> Self:
+    def detrend(self, **kwargs: Any) -> Self:
         """Remove the trend component from the dataset's value series.
 
         Delegates to :func:`colombia_hydrodata.utils.tsa.detrend`. The
@@ -208,7 +208,7 @@ class Dataset:
         new_data["anomalies"] = tsa.anomalies_series(new_data["detrended"], new_data["seasonal"])
         return replace(self, data=new_data)
 
-    def deconstruction(self, **kwargs) -> Self:
+    def deconstruction(self, **kwargs: Any) -> Self:
         """Fully decompose the value series in a single step.
 
         Delegates to :func:`colombia_hydrodata.utils.tsa.deconstruction`,

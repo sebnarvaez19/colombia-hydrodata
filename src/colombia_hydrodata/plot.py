@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Literal, Sequence
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,7 +23,7 @@ class DatasetPlot:
         """
         self.dataset = dataset
 
-    def time_series(self, column_name: str = "value", **kwargs) -> Axes:
+    def time_series(self, column_name: str = "value", **kwargs: Any) -> Axes:
         """Plot a timestamp-versus-value line series for the dataset.
 
         Uses the dataset ``timestamp`` column on the x-axis and the selected
@@ -45,7 +45,7 @@ class DatasetPlot:
             **kwargs,
         )
 
-    def stem_series(self, column_name: str = "value", **kwargs) -> Axes:
+    def stem_series(self, column_name: str = "value", **kwargs: Any) -> Axes:
         """Plot a stem chart for a dataset column against time.
 
         Args:
@@ -60,7 +60,7 @@ class DatasetPlot:
             timestamp=pd.Series(self.dataset.data["timestamp"]), value=pd.Series(self.dataset.data[column_name]), **kwargs
         )
 
-    def histogram(self, column_name: str = "value", **kwargs) -> Axes:
+    def histogram(self, column_name: str = "value", **kwargs: Any) -> Axes:
         """Plot a histogram for one dataset column.
 
         Args:
@@ -73,7 +73,7 @@ class DatasetPlot:
         """
         return plot.histogram(value=pd.Series(self.dataset.data[column_name]), **kwargs)
 
-    def monthly_data_series(self, column_name: str = "value", **kwargs) -> Axes:
+    def monthly_data_series(self, column_name: str = "value", **kwargs: Any) -> Axes:
         """Plot the selected series grouped by calendar month.
 
         Args:
@@ -88,7 +88,7 @@ class DatasetPlot:
             timestamp=pd.Series(self.dataset.data["timestamp"]), value=pd.Series(self.dataset.data[column_name]), **kwargs
         )
 
-    def annual_data_series(self, column_name: str = "value", years: Sequence[int] | None = None, **kwargs) -> Axes:
+    def annual_data_series(self, column_name: str = "value", years: Sequence[int] | None = None, **kwargs: Any) -> Axes:
         """Plot the annual cycle envelope and optional individual years.
 
         Draws the day-of-year quantile bands for the selected column and, when
@@ -114,7 +114,7 @@ class DatasetPlot:
                 )
         return ax
 
-    def tsa_classic(self, **kwargs) -> tuple[Figure, NDArray[np.object_]]:
+    def tsa_classic(self, **kwargs: Any) -> tuple[Figure, NDArray[np.object_]]:
         """Create the classic four-panel time-series analysis figure.
 
         The panels show the raw series, detrended series, monthly seasonal
@@ -142,7 +142,7 @@ class DatasetPlot:
 
         return fig, axs
 
-    def tsa_new(self, **kwargs) -> tuple[Figure, NDArray[np.object_]]:
+    def tsa_new(self, **kwargs: Any) -> tuple[Figure, NDArray[np.object_]]:
         """Create the compact time-series analysis dashboard.
 
         The layout combines the raw series, detrended histogram, anomalies,
@@ -171,7 +171,7 @@ class DatasetPlot:
 
         return fig, np.array([ax0, ax1, ax2, ax3])
 
-    def time_series_analysis(self, layout: Literal["classic", "new"] = "new", **kwargs) -> tuple[Figure, NDArray[np.object_]]:
+    def time_series_analysis(self, layout: Literal["classic", "new"] = "new", **kwargs: Any) -> tuple[Figure, NDArray[np.object_]]:
         """Create a standard time-series analysis figure for the dataset.
 
         Args:
@@ -198,7 +198,7 @@ class DatasetPlot:
         self,
         column_name: str = "value",
         years: Sequence[int] | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> tuple[Figure, NDArray[np.object_]]:
         """Create a two-panel annual-cycle analysis figure.
 
