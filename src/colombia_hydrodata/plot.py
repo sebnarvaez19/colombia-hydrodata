@@ -23,19 +23,27 @@ class DatasetPlot:
         )
 
     def stem_series(self, column_name: str = "value", **kwargs) -> Axes:
-        return plot.stem_series(timestamp=pd.Series(self.dataset.data["timestamp"]), value=pd.Series(self.dataset.data[column_name]), **kwargs)
+        return plot.stem_series(
+            timestamp=pd.Series(self.dataset.data["timestamp"]), value=pd.Series(self.dataset.data[column_name]), **kwargs
+        )
 
     def histogram(self, column_name: str = "value", **kwargs) -> Axes:
         return plot.histogram(value=pd.Series(self.dataset.data[column_name]), **kwargs)
 
     def monthly_data_series(self, column_name: str = "value", **kwargs) -> Axes:
-        return plot.month_series(timestamp=pd.Series(self.dataset.data["timestamp"]), value=pd.Series(self.dataset.data[column_name]), **kwargs)
+        return plot.month_series(
+            timestamp=pd.Series(self.dataset.data["timestamp"]), value=pd.Series(self.dataset.data[column_name]), **kwargs
+        )
 
     def annual_data_series(self, column_name: str = "value", years: Sequence[int] | None = None, **kwargs) -> Axes:
-        ax = plot.year_series(timestamp=pd.Series(self.dataset.data["timestamp"]), value=pd.Series(self.dataset.data[column_name]), **kwargs)
+        ax = plot.year_series(
+            timestamp=pd.Series(self.dataset.data["timestamp"]), value=pd.Series(self.dataset.data[column_name]), **kwargs
+        )
         if years and all(map(lambda x: isinstance(x, int), years)):
             for year in years:
-                ax = plot.year_line(timestamp=pd.Series(self.dataset.data["timestamp"]), value=pd.Series(self.dataset.data[column_name]), year=year, ax=ax)
+                ax = plot.year_line(
+                    timestamp=pd.Series(self.dataset.data["timestamp"]), value=pd.Series(self.dataset.data[column_name]), year=year, ax=ax
+                )
         return ax
 
     def seasonal_data_series(self, column_name: str = "value", time_resolution: Literal["month", "year"] = "month", **kwargs) -> Axes:
@@ -53,9 +61,7 @@ class DatasetPlot:
                     **kwargs,
                 )
             case _:
-                raise ValueError(
-                    "time_resolution must be either 'month' or 'year'"
-                )
+                raise ValueError("time_resolution must be either 'month' or 'year'")
 
 
 if __name__ == "__main__":

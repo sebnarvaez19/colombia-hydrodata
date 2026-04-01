@@ -61,19 +61,20 @@ def month_series(
     return ax
 
 
-def year_series(timestamp: pd.Series, value: pd.Series, ax: Axes | None = None, **kwargs) -> Axes:
+def year_series(timestamp: pd.Series, value: pd.Series, ax: Axes | None = None, color: str | None = None, **kwargs) -> Axes:
     ax = check_ax(ax)
+    color = color or ax._get_lines.get_next_color()  # type: ignore
 
     for mdl in months_doy_limits:
         ax.axvline(x=mdl, color="black", linestyle="-", linewidth=0.5, alpha=0.5)
 
     df = day_quantiles(day_dataframe(timestamp, value))
-    ax.fill_between(df["doy"], df["value_0.0"], df["value_0.1"], color="C0", alpha=0.2)
-    ax.fill_between(df["doy"], df["value_0.1"], df["value_0.25"], color="C0", alpha=0.3)
-    ax.fill_between(df["doy"], df["value_0.75"], df["value_0.9"], color="C0", alpha=0.3)
-    ax.fill_between(df["doy"], df["value_0.9"], df["value_1.0"], color="C0", alpha=0.2)
-    ax.fill_between(df["doy"], df["value_0.25"], df["value_0.75"], color="C0", alpha=0.4)
-    ax.plot(df["doy"], df["value_0.5"], color="C0")
+    ax.fill_between(df["doy"], df["value_0.0"], df["value_0.1"], color=color, alpha=0.2)
+    ax.fill_between(df["doy"], df["value_0.1"], df["value_0.25"], color=color, alpha=0.3)
+    ax.fill_between(df["doy"], df["value_0.75"], df["value_0.9"], color=color, alpha=0.3)
+    ax.fill_between(df["doy"], df["value_0.9"], df["value_1.0"], color=color, alpha=0.2)
+    ax.fill_between(df["doy"], df["value_0.25"], df["value_0.75"], color=color, alpha=0.4)
+    ax.plot(df["doy"], df["value_0.5"], color=color)
 
     def set_label(col_name: str):
         q = float(col_name.split("_")[-1])
@@ -92,7 +93,7 @@ def year_line(timestamp: pd.Series, value: pd.Series, year: int, ax: Axes | None
     ax = check_ax(ax)
     df = day_dataframe(timestamp, value)
     df = df[df["year"] == year]
-    ax.plot(df["doy"], df["value"], **kwargs)
+    ax.plot(df["doy"], df["value"], label=f"{year}", **kwargs)
     return ax
 
 
