@@ -8,12 +8,12 @@ very first query against a real Colombian hydrological station.
 ## Requirements
 
 !!! warning "Python version"
-    `colombia-hydrodata` requires **Python 3.14 or newer**.
+    `colombia-hydrodata` requires **Python 3.12 or newer**.
     Run `python --version` to confirm before installing.
 
 | Dependency           | Minimum version | Notes                     |
 | -------------------- | --------------- | ------------------------- |
-| Python               | 3.14            | Required                  |
+| Python               | 3.12            | Required                  |
 | `requests`           | 2.32            | HTTP transport            |
 | `pandas`             | 3.0             | Returned datasets         |
 | `geopandas`          | 1.1             | Catalog GeoDataFrame      |
