@@ -35,6 +35,9 @@ wrestling with raw APIs.
 
 ## Quick look
 
+[![Open fetch-data in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sebnarvaez19/colombia-hydrodata/blob/main/docs/notebooks/fetch-data.ipynb)
+[![Open plot-data in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sebnarvaez19/colombia-hydrodata/blob/main/docs/notebooks/plot-data.ipynb)
+
 ```python
 from colombia_hydrodata import Client
 
@@ -79,6 +82,15 @@ dataset.plot.time_series(title=station.name)
   `daily_series_analysis()`.
 
   [:octicons-arrow-right-24: Plotting](tutorial/plotting.md)
+
+- :material-google-classroom: **Colab Notebooks**
+
+  ***
+
+  Run the fetch and plotting examples directly in Google Colab.
+
+  [:octicons-arrow-right-24: Fetch Data](https://colab.research.google.com/github/sebnarvaez19/colombia-hydrodata/blob/main/docs/notebooks/fetch-data.ipynb)
+  [:octicons-arrow-right-24: Plot Data](https://colab.research.google.com/github/sebnarvaez19/colombia-hydrodata/blob/main/docs/notebooks/plot-data.ipynb)
 
 - :material-book-open-page-variant-outline: **API Reference**
 

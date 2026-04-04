@@ -3,6 +3,8 @@
 This tutorial shows how to use the `dataset.plot` interface to generate the
 built-in visual diagnostics provided by `colombia-hydrodata`.
 
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sebnarvaez19/colombia-hydrodata/blob/main/docs/notebooks/plot-data.ipynb)
+
 ---
 
 ## Prepare a dataset

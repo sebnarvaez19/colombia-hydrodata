@@ -2,6 +2,8 @@
 
 [![PyPI](https://img.shields.io/pypi/v/colombia-hydrodata)](https://pypi.org/project/colombia-hydrodata/)
 [![Docs](https://img.shields.io/badge/docs-online-teal)](https://sebnarvaez19.github.io/colombia-hydrodata/)
+[![Open fetch-data in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sebnarvaez19/colombia-hydrodata/blob/main/docs/notebooks/fetch-data.ipynb)
+[![Open plot-data in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sebnarvaez19/colombia-hydrodata/blob/main/docs/notebooks/plot-data.ipynb)
 
 Python client for accessing hydrological and meteorological data from Colombia.
 
@@ -48,6 +50,9 @@ poetry add colombia-hydrodata
 
 ## Quick Start
 
+Interactive notebook:
+[Open `fetch-data.ipynb` in Colab](https://colab.research.google.com/github/sebnarvaez19/colombia-hydrodata/blob/main/docs/notebooks/fetch-data.ipynb)
+
 ```python
 from colombia_hydrodata import Client
 
@@ -65,6 +70,9 @@ print(dataset.data.head())
 ---
 
 ## Plotting
+
+Interactive notebook:
+[Open `plot-data.ipynb` in Colab](https://colab.research.google.com/github/sebnarvaez19/colombia-hydrodata/blob/main/docs/notebooks/plot-data.ipynb)
 
 Datasets expose built-in plotting helpers through the `plot` property.
 

@@ -5,6 +5,8 @@ the complete time series pulled from the IDEAM Aquarius WebPortal. Once you
 have a [`Station`](stations.md) object, producing a `Dataset` is a single
 expression.
 
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sebnarvaez19/colombia-hydrodata/blob/main/docs/notebooks/fetch-data.ipynb)
+
 ---
 
 ## What is a Dataset?
