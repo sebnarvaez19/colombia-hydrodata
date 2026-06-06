@@ -36,7 +36,8 @@ def aquarius_datasets() -> pd.DataFrame:
 
 def station_datasets(station_id: str) -> dict[str, DatasetInfo]:
     datasets = aquarius_datasets()
-    datasets = pd.DataFrame(datasets[datasets["loc_id"] == station_id][["param", "label", "wp_dset_id"]]).rename(columns={"wp_dset_id": "id"})
+    match_ids = {station_id, station_id.zfill(10), station_id.lstrip("0")}
+    datasets = pd.DataFrame(datasets[datasets["loc_id"].isin(match_ids)][["param", "label", "wp_dset_id"]]).rename(columns={"wp_dset_id": "id"})
     datasets = datasets.to_dict(orient="records")
     return {f"{dataset['param']}@{dataset['label']}": dataset for dataset in datasets}  # type: ignore
 

@@ -45,7 +45,10 @@ class Client:
             A GeoDataFrame containing only the rows whose ``id`` value is
             present in ``station_ids``.
         """
-        return gpd.GeoDataFrame(self.catalog[self.catalog["id"].isin(station_ids)])
+        normalized_ids = []
+        for sid in station_ids:
+            normalized_ids.extend([sid, sid.zfill(10), sid.lstrip("0")])
+        return gpd.GeoDataFrame(self.catalog[self.catalog["id"].isin(normalized_ids)])
 
     def stations_in_region(self, region: Polygon | MultiPolygon) -> gpd.GeoDataFrame:
         """Returns all catalog stations whose geometry falls within a given region.
