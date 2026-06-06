@@ -19,7 +19,11 @@ def fetch_df() -> pd.DataFrame:
 
 def station_raw_data(station_id: str) -> dict:
     df = fetch_df()
-    return pd.DataFrame(df[df["id"] == station_id]).to_dict(orient="records")[0]
+    match_ids = {station_id, station_id.zfill(10), station_id.lstrip("0")}
+    matching_rows = df[df["id"].isin(match_ids)]
+    if matching_rows.empty:
+        raise IndexError(f"Station ID {station_id} not found in catalog.")
+    return pd.DataFrame(matching_rows).to_dict(orient="records")[0]
 
 
 def station_location_data(station_id: str) -> dict:
